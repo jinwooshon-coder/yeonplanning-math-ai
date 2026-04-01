@@ -17,6 +17,11 @@ const SYSTEM_PROMPT = `당신은 연플래닝 수학AI 튜터입니다. 중·고
 5. 관련 개념이나 공식을 간단히 정리해줍니다.
 6. 학생이 이해하기 쉽도록 친절하게 설명합니다.`;
 
+console.log('ENV CHECK:', {
+  hasApiKey: !!process.env.ANTHROPIC_API_KEY,
+  apiKeyPrefix: process.env.ANTHROPIC_API_KEY?.substring(0, 10)
+});
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: CORS_HEADERS };
@@ -82,7 +87,7 @@ exports.handler = async (event) => {
       })
     };
   } catch (err) {
-    console.error('Solve error:', err.status, err.message, JSON.stringify(err.error || {}));
+    console.error('Solve error full:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: '풀이 중 오류가 발생했습니다.' }) };
   }
 };
