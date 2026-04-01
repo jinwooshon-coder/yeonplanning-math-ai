@@ -376,9 +376,14 @@ body {
   gap: 8px;
 }
 
-.attach-btn {
+.attach-btn,
+.camera-btn {
   cursor: pointer;
   flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .camera-btn { display: none; }
 }
 
 #question-input {

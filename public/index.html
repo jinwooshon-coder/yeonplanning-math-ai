@@ -113,12 +113,19 @@
       </div>
 
       <div class="input-row">
-        <label class="btn-icon attach-btn" title="사진 첨부">
-          <input type="file" id="image-input" accept="image/*" capture="environment" hidden>
+        <label class="btn-icon attach-btn" title="갤러리에서 선택">
+          <input type="file" id="image-input" accept="image/*" hidden>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
             <circle cx="8.5" cy="8.5" r="1.5"/>
             <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </label>
+        <label class="btn-icon camera-btn" title="카메라로 촬영">
+          <input type="file" id="camera-input" accept="image/*" capture="environment" hidden>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
           </svg>
         </label>
         <textarea id="question-input" placeholder="수학 문제를 입력하세요..." rows="1"></textarea>

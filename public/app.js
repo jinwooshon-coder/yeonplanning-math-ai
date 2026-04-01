@@ -138,6 +138,13 @@ imageInput.addEventListener('change', (e) => {
   loadImageFile(file);
 });
 
+const cameraInput = $('#camera-input');
+cameraInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  loadImageFile(file);
+});
+
 // === Drag & Drop ===
 const dropZone = $('.solve-area');
 const dropOverlay = document.createElement('div');
@@ -219,6 +226,7 @@ document.addEventListener('paste', (e) => {
 removeImageBtn.addEventListener('click', () => {
   attachedImage = null;
   imageInput.value = '';
+  cameraInput.value = '';
   imagePreview.classList.add('hidden');
   previewImg.src = '';
   updateSolveBtn();
@@ -378,6 +386,7 @@ function resetSolveUI() {
   questionInput.style.height = 'auto';
   attachedImage = null;
   imageInput.value = '';
+  cameraInput.value = '';
   imagePreview.classList.add('hidden');
   saveStatus.classList.add('hidden');
   updateSolveBtn();
