@@ -71,6 +71,10 @@ loginForm.addEventListener('submit', async (e) => {
 
     currentStudent = data.student;
     sessionStorage.setItem('student', JSON.stringify(currentStudent));
+    localStorage.setItem('credentials', JSON.stringify({
+      studentId: studentIdInput.value.trim(),
+      password: passwordInput.value
+    }));
     showMainScreen();
   } catch (err) {
     loginError.textContent = err.message;
@@ -95,6 +99,7 @@ function showLoginScreen() {
   loginScreen.classList.add('active');
   currentStudent = null;
   sessionStorage.removeItem('student');
+  localStorage.removeItem('credentials');
   loginForm.reset();
   loginError.classList.add('hidden');
   resetSolveUI();
@@ -102,7 +107,7 @@ function showLoginScreen() {
 
 logoutBtn.addEventListener('click', showLoginScreen);
 
-// Session restore
+// Session restore (sessionStorage first, then auto-login via localStorage)
 const saved = sessionStorage.getItem('student');
 if (saved) {
   try {
@@ -110,6 +115,30 @@ if (saved) {
     showMainScreen();
   } catch {
     sessionStorage.removeItem('student');
+  }
+} else {
+  const creds = localStorage.getItem('credentials');
+  if (creds) {
+    (async () => {
+      try {
+        const { studentId, password } = JSON.parse(creds);
+        const res = await fetch(`${API}/auth`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentStudent = data.student;
+          sessionStorage.setItem('student', JSON.stringify(currentStudent));
+          showMainScreen();
+        } else {
+          localStorage.removeItem('credentials');
+        }
+      } catch {
+        localStorage.removeItem('credentials');
+      }
+    })();
   }
 }
 

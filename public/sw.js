@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yeonplanning-math-v4';
+const CACHE_NAME = 'yeonplanning-math-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
