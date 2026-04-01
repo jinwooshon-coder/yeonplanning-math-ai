@@ -63,8 +63,8 @@ exports.handler = async (event) => {
     });
 
     const response = await client.messages.create({
-      model: 'claude-opus-4-5',
-      max_tokens: 4096,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8192,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content }]
     });
