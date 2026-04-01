@@ -1,5 +1,3 @@
-const Anthropic = require('@anthropic-ai/sdk');
-
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type',
@@ -38,8 +36,6 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: '문제를 입력하거나 이미지를 첨부하세요.' }) };
     }
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
     // 메시지 내용 구성
     const content = [];
 
@@ -70,16 +66,30 @@ exports.handler = async (event) => {
       return block;
     });
     console.log('API request content:', JSON.stringify(debugContent));
-    console.log('API request messages:', JSON.stringify([{ role: 'user', content: debugContent }]));
 
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 8192,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content }]
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4096,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content }]
+      })
     });
 
-    const answer = response.content
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('API error:', JSON.stringify(result));
+      throw new Error(result.error?.message || `API returned ${response.status}`);
+    }
+
+    const answer = result.content
       .filter((block) => block.type === 'text')
       .map((block) => block.text)
       .join('\n');
@@ -91,16 +101,13 @@ exports.handler = async (event) => {
         success: true,
         answer,
         usage: {
-          input_tokens: response.usage.input_tokens,
-          output_tokens: response.usage.output_tokens
+          input_tokens: result.usage.input_tokens,
+          output_tokens: result.usage.output_tokens
         }
       })
     };
   } catch (err) {
-    console.error('Solve error message:', err.message);
-    console.error('Solve error status:', err.status);
-    console.error('Solve error body:', JSON.stringify(err.error));
-    console.error('Solve error full:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    console.error('Solve error:', err.message);
     console.log('SYSTEM_PROMPT length:', SYSTEM_PROMPT.length);
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: '풀이 중 오류가 발생했습니다.' }) };
   }
