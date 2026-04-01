@@ -148,28 +148,72 @@ dropZone.appendChild(dropOverlay);
 
 let dragCounter = 0;
 
-dropZone.addEventListener('dragenter', (e) => {
+document.addEventListener('dragenter', (e) => {
   e.preventDefault();
+  e.stopPropagation();
   dragCounter++;
-  dropOverlay.classList.remove('hidden');
+  if (mainScreen.classList.contains('active')) {
+    dropOverlay.classList.remove('hidden');
+  }
 });
 
-dropZone.addEventListener('dragleave', (e) => {
+document.addEventListener('dragleave', (e) => {
   e.preventDefault();
+  e.stopPropagation();
   dragCounter--;
-  if (dragCounter === 0) dropOverlay.classList.add('hidden');
+  if (dragCounter <= 0) {
+    dragCounter = 0;
+    dropOverlay.classList.add('hidden');
+  }
 });
 
-dropZone.addEventListener('dragover', (e) => {
+document.addEventListener('dragover', (e) => {
   e.preventDefault();
+  e.stopPropagation();
 });
 
-dropZone.addEventListener('drop', (e) => {
+document.addEventListener('drop', (e) => {
   e.preventDefault();
+  e.stopPropagation();
   dragCounter = 0;
   dropOverlay.classList.add('hidden');
-  const file = e.dataTransfer.files[0];
-  if (file) loadImageFile(file);
+
+  if (!mainScreen.classList.contains('active')) return;
+
+  const dt = e.dataTransfer;
+  if (!dt || !dt.files || dt.files.length === 0) return;
+
+  const file = dt.files[0];
+  if (file && file.type.startsWith('image/')) {
+    loadImageFile(file);
+  }
+});
+
+// === Clipboard Paste ===
+document.addEventListener('paste', (e) => {
+  if (!mainScreen.classList.contains('active')) return;
+
+  // clipboardData.files (modern browsers)
+  if (e.clipboardData.files && e.clipboardData.files.length > 0) {
+    const file = e.clipboardData.files[0];
+    if (file.type.startsWith('image/')) {
+      e.preventDefault();
+      loadImageFile(file);
+      return;
+    }
+  }
+
+  // clipboardData.items fallback
+  const items = e.clipboardData.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (file) loadImageFile(file);
+      return;
+    }
+  }
 });
 
 removeImageBtn.addEventListener('click', () => {

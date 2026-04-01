@@ -253,6 +253,13 @@ body {
   line-height: 1.6;
 }
 
+.upload-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  opacity: 0.7;
+  margin-top: -4px;
+}
+
 .answer-container {
   background: var(--bg-card);
   border: 1px solid var(--border);
