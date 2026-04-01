@@ -62,6 +62,16 @@ exports.handler = async (event) => {
       text: question || '이 수학 문제를 풀어주세요.'
     });
 
+    // 디버그: content 배열 구조 출력 (이미지 data는 앞 50자만)
+    const debugContent = content.map((block) => {
+      if (block.type === 'image') {
+        return { ...block, source: { ...block.source, data: block.source.data.substring(0, 50) + '...' } };
+      }
+      return block;
+    });
+    console.log('API request content:', JSON.stringify(debugContent));
+    console.log('API request messages:', JSON.stringify([{ role: 'user', content: debugContent }]));
+
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 8192,
