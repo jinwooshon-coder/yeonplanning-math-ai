@@ -1,0 +1,10 @@
+{
+  "name": "yeonplanning-math-ai",
+  "version": "1.0.0",
+  "description": "연플래닝 수학AI - Claude Opus 기반 수학 풀이 PWA",
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "googleapis": "^144.0.0"
+  }
+}
