@@ -9,7 +9,7 @@ const CORS_HEADERS = {
 
 function getAuth() {
   return new google.auth.GoogleAuth({
-    credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON),
+    credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY),
     scopes: [
       'https://www.googleapis.com/auth/spreadsheets',
       'https://www.googleapis.com/auth/drive.file'
@@ -44,7 +44,7 @@ exports.handler = async (event) => {
 
     const fileMetadata = {
       name: `수학풀이_${studentId}_${Date.now()}.txt`,
-      parents: process.env.DRIVE_FOLDER_ID ? [process.env.DRIVE_FOLDER_ID] : []
+      parents: process.env.GOOGLE_DRIVE_FOLDER_ID ? [process.env.GOOGLE_DRIVE_FOLDER_ID] : []
     };
 
     const media = {
@@ -60,8 +60,8 @@ exports.handler = async (event) => {
 
     // 2. Google Sheets에 사용 기록 추가
     await sheets.spreadsheets.values.append({
-      spreadsheetId: process.env.STUDENT_SHEET_ID,
-      range: '사용기록!A:F',
+      spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+      range: '풀이기록!A:F',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [[
@@ -77,8 +77,8 @@ exports.handler = async (event) => {
 
     // 3. 잔여 횟수 차감
     const studentRes = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.STUDENT_SHEET_ID,
-      range: '학생목록!A2:E'
+      spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+      range: '학생명단!A2:E'
     });
 
     const rows = studentRes.data.values || [];
@@ -87,8 +87,8 @@ exports.handler = async (event) => {
     if (rowIndex >= 0) {
       const currentRemaining = parseInt(rows[rowIndex][4] || '0', 10);
       await sheets.spreadsheets.values.update({
-        spreadsheetId: process.env.STUDENT_SHEET_ID,
-        range: `학생목록!E${rowIndex + 2}`,
+        spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+        range: `학생명단!E${rowIndex + 2}`,
         valueInputOption: 'USER_ENTERED',
         requestBody: { values: [[Math.max(0, currentRemaining - 1)]] }
       });
