@@ -58,7 +58,7 @@ exports.handler = async (event) => {
     });
 
     const response = await client.messages.create({
-      model: 'claude-opus-4-6-20250415',
+      model: 'claude-sonnet-4-5-20251001',
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content }]
@@ -82,7 +82,7 @@ exports.handler = async (event) => {
       })
     };
   } catch (err) {
-    console.error('Solve error:', err);
+    console.error('Solve error:', err.status, err.message, JSON.stringify(err.error || {}));
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: '풀이 중 오류가 발생했습니다.' }) };
   }
 };
