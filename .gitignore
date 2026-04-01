@@ -1,2 +1,3 @@
 .env
+env_for_netlify.txt
 node_modules/

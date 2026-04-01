@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1q5Cn80EM9znMWX1GkGoWKoyXAJ4bnIXsq10491hhlTs';
+const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
 
 const SHEETS_CONFIG = [
   {
