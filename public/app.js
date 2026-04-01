@@ -114,13 +114,11 @@ if (saved) {
 }
 
 // === Image Attach ===
-imageInput.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+function loadImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
 
   if (file.size > 10 * 1024 * 1024) {
     alert('이미지 크기는 10MB 이하여야 합니다.');
-    imageInput.value = '';
     return;
   }
 
@@ -132,6 +130,46 @@ imageInput.addEventListener('change', (e) => {
     updateSolveBtn();
   };
   reader.readAsDataURL(file);
+}
+
+imageInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  loadImageFile(file);
+});
+
+// === Drag & Drop ===
+const dropZone = $('.solve-area');
+const dropOverlay = document.createElement('div');
+dropOverlay.className = 'drop-overlay hidden';
+dropOverlay.innerHTML = '<div class="drop-overlay-content"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p>여기에 놓으세요</p></div>';
+dropZone.style.position = 'relative';
+dropZone.appendChild(dropOverlay);
+
+let dragCounter = 0;
+
+dropZone.addEventListener('dragenter', (e) => {
+  e.preventDefault();
+  dragCounter++;
+  dropOverlay.classList.remove('hidden');
+});
+
+dropZone.addEventListener('dragleave', (e) => {
+  e.preventDefault();
+  dragCounter--;
+  if (dragCounter === 0) dropOverlay.classList.add('hidden');
+});
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dragCounter = 0;
+  dropOverlay.classList.add('hidden');
+  const file = e.dataTransfer.files[0];
+  if (file) loadImageFile(file);
 });
 
 removeImageBtn.addEventListener('click', () => {
