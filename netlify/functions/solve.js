@@ -87,9 +87,10 @@ exports.handler = async (event) => {
       })
     };
   } catch (err) {
+    console.error('Solve error message:', err.message);
+    console.error('Solve error status:', err.status);
+    console.error('Solve error body:', JSON.stringify(err.error));
     console.error('Solve error full:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
-    const errBody = await err.response?.json().catch(() => ({}));
-    console.error('400 detail:', JSON.stringify(errBody));
     console.log('SYSTEM_PROMPT length:', SYSTEM_PROMPT.length);
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: '풀이 중 오류가 발생했습니다.' }) };
   }
