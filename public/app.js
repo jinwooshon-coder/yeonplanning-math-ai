@@ -31,6 +31,15 @@ const copyBtn = $('#copy-btn');
 const saveStatus = $('#save-status');
 const loadingOverlay = $('#loading-overlay');
 
+// === Password Toggle ===
+const togglePwBtn = $('#toggle-password');
+togglePwBtn.addEventListener('click', () => {
+  const isHidden = passwordInput.type === 'password';
+  passwordInput.type = isHidden ? 'text' : 'password';
+  togglePwBtn.querySelector('.eye-open').classList.toggle('hidden', isHidden);
+  togglePwBtn.querySelector('.eye-closed').classList.toggle('hidden', !isHidden);
+});
+
 // === Service Worker ===
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
