@@ -948,7 +948,75 @@ $('btn-remove-img').addEventListener('click', () => {
   fileInput.value = '';
 });
 
-function loadImageFile(file) {
+if (w > MAX) { ... }  // 1500px 넘을 때만 줄임
+if (h > MAX) { ... }  // 1500px 넘을 때만 줄임
+```
+
+1500px 이하 이미지는 **전혀 건드리지 않아요** ✅
+
+그냥 위 코드 적용하면 돼요! 😊
+
+**Ctrl+S** 후:
+```
+git add .
+git commit -m "큰 이미지만 압축"
+git push origin HEAD(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      state.uploadedImage = canvas.toDataURL('image/jpeg', 0.6);
+      $('preview-img').src = state.uploadedImage;
+      uploadZone.classList.add('hidden');
+      $('preview-zone').classList.remove('hidden');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+```
+
+**Ctrl+S** 후:
+```
+git add .
+git commit -m "이미지 압축으로 속도 개선"
+git push origin HEAD(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // 최대 1000px로 압축
+      const canvas = document.createElement('canvas');
+      const MAX = 1000;
+      let w = img.width, h = img.height;
+      if (w > MAX) { h = h * MAX / w; w = MAX; }
+      if (h > MAX) { w = w * MAX / h; h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      state.uploadedImage = canvas.toDataURL('image/jpeg', 0.7);
+      $('preview-img').src = state.uploadedImage;
+      uploadZone.classList.add('hidden');
+      $('preview-zone').classList.remove('hidden');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+```
+
+**Ctrl+S** 후:
+```
+git add .
+git commit -m "이미지 압축으로 타임아웃 해결"
+git push(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
     state.uploadedImage = e.target.result;
