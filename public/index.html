@@ -257,6 +257,44 @@
        탭 1: 수학 풀이
     ════════════════════════════════ */
 
+    /* 업로드 버튼 3개 */
+    .upload-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin: 16px;
+    }
+    .upload-big-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upload-big-btn:active {
+      background: var(--card);
+      border-color: var(--accent);
+      transform: scale(0.97);
+    }
+    .ubtn-icon { font-size: 32px; }
+    .ubtn-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--font);
+    }
+    .ubtn-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: var(--font);
+    }
+
     /* 업로드 영역 */
     .solve-upload {
       margin: 16px;
@@ -286,7 +324,7 @@
     }
     .upload-preview img {
       width: 100%;
-      max-height: 260px;
+      max-height: 200px;
       object-fit: contain;
       border-radius: var(--radius);
       display: block;
@@ -583,6 +621,25 @@
       margin-top: 12px;
     }
 
+    /* 이미지 조작 버튼 */
+    .img-controls {
+      display: flex;
+      gap: 8px;
+      margin: 0 16px 8px;
+    }
+    .img-ctrl-btn {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-family: var(--font);
+      padding: 8px 4px;
+      cursor: pointer;
+    }
+    .img-ctrl-btn:active { background: var(--card); }
+
     /* KaTeX 오버라이드 */
     .katex { color: var(--text); font-size: 1em; }
     .katex-display { margin: 8px 0; overflow-x: auto; }
@@ -652,18 +709,38 @@
     <!-- ── 탭 1: 문제 풀이 ── -->
     <div class="tab-panel active" id="panel-solve">
 
-      <!-- 이미지 업로드 -->
-      <div class="solve-upload" id="upload-zone">
-        <input type="file" id="file-input" accept="image/*" capture="environment" />
-        <div class="upload-icon">📸</div>
-        <div class="upload-title">수학 문제 사진 업로드</div>
-        <div class="upload-hint">드래그 / 클릭 / Ctrl+V 붙여넣기<br>카메라 촬영도 가능해요</div>
+      <!-- 이미지 업로드 버튼 3개 -->
+      <div class="upload-btns" id="upload-zone">
+        <input type="file" id="file-input" accept="image/*" style="display:none;" />
+        <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none;" />
+        <button class="upload-big-btn" id="btn-gallery">
+          <span class="ubtn-icon">🖼️</span>
+          <span class="ubtn-label">사진 선택</span>
+          <span class="ubtn-sub">갤러리에서 불러오기</span>
+        </button>
+        <button class="upload-big-btn" id="btn-camera">
+          <span class="ubtn-icon">📷</span>
+          <span class="ubtn-label">카메라 촬영</span>
+          <span class="ubtn-sub">지금 바로 찍기</span>
+        </button>
+        <button class="upload-big-btn" id="btn-paste-img">
+          <span class="ubtn-icon">📋</span>
+          <span class="ubtn-label">붙여넣기</span>
+          <span class="ubtn-sub">복사한 이미지</span>
+        </button>
       </div>
 
       <!-- 이미지 미리보기 -->
       <div class="upload-preview hidden" id="preview-zone">
         <img id="preview-img" src="" alt="문제 이미지" />
         <button class="btn-remove" id="btn-remove-img">✕</button>
+      </div>
+      <!-- 이미지 조작 버튼 -->
+      <div class="img-controls hidden" id="img-controls">
+        <button class="img-ctrl-btn" id="btn-rotate-left">↺ 왼쪽</button>
+        <button class="img-ctrl-btn" id="btn-rotate-right">↻ 오른쪽</button>
+        <button class="img-ctrl-btn" id="btn-zoom-in">🔍+</button>
+        <button class="img-ctrl-btn" id="btn-zoom-out">🔍-</button>
       </div>
 
       <!-- 텍스트 입력 + 풀이 버튼 -->
@@ -919,12 +996,46 @@ document.querySelectorAll('.tab-btn').forEach((btn) => {
 ══════════════════════════════════════ */
 const uploadZone = $('upload-zone');
 const fileInput = $('file-input');
+const fileCamera = $('file-camera');
 
+// 갤러리 버튼
+$('btn-gallery').addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) loadImageFile(file);
 });
 
+// 카메라 버튼
+$('btn-camera').addEventListener('click', () => fileCamera.click());
+fileCamera.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) loadImageFile(file);
+});
+
+// 붙여넣기 버튼
+$('btn-paste-img').addEventListener('click', async () => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.read) {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        for (const type of item.types) {
+          if (type.startsWith('image/')) {
+            const blob = await item.getType(type);
+            loadImageFile(new File([blob], 'paste.jpg', { type }));
+            return;
+          }
+        }
+      }
+      alert('클립보드에 이미지가 없어요.\n사진을 먼저 복사해주세요!');
+    } else {
+      alert('화면을 길게 눌러 붙여넣기를 시도해보세요.');
+    }
+  } catch {
+    alert('클립보드 접근 권한이 필요해요.\n브라우저 설정에서 허용해주세요.');
+  }
+});
+
+// 드래그 앤 드롭
 uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
   uploadZone.classList.add('dragover');
@@ -952,31 +1063,139 @@ document.addEventListener('paste', (e) => {
 $('btn-remove-img').addEventListener('click', () => {
   state.uploadedImage = null;
   $('preview-zone').classList.add('hidden');
+  $('img-controls').classList.add('hidden');
   uploadZone.classList.remove('hidden');
   fileInput.value = '';
+  fileCamera.value = '';
+  imgRotation = 0; imgScale = 1;
 });
 
+// 이미지 회전 상태
+let imgRotation = 0;
+let imgScale = 1;
+
+function applyImgTransform() {
+  $('preview-img').style.transform = `rotate(${imgRotation}deg) scale(${imgScale})`;
+}
+
 function loadImageFile(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
+  const url = URL.createObjectURL(file);
+
+  // EXIF 방향 읽기 → 캔버스에 올바르게 그리기
+  readOrientation(file).then((orientation) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
       const MAX = 1500;
-      let w = img.width, h = img.height;
-      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-      if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      let sw = img.naturalWidth, sh = img.naturalHeight;
+
+      // orientation 6=시계90, 8=반시계90, 3=180
+      const needSwap = orientation === 6 || orientation === 8;
+      let cw = needSwap ? sh : sw;
+      let ch = needSwap ? sw : sh;
+
+      // 크기 제한
+      const ratio = Math.min(MAX / cw, MAX / ch, 1);
+      cw = Math.round(cw * ratio);
+      ch = Math.round(ch * ratio);
+
+      canvas.width = cw;
+      canvas.height = ch;
+      const ctx = canvas.getContext('2d');
+      ctx.save();
+      ctx.translate(cw / 2, ch / 2);
+
+      if (orientation === 3) ctx.rotate(Math.PI);
+      else if (orientation === 6) ctx.rotate(Math.PI / 2);
+      else if (orientation === 8) ctx.rotate(-Math.PI / 2);
+
+      const dw = sw * ratio, dh = sh * ratio;
+      ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+      ctx.restore();
+
       state.uploadedImage = canvas.toDataURL('image/jpeg', 0.85);
       $('preview-img').src = state.uploadedImage;
+      $('preview-img').style.transform = '';
+      imgRotation = 0; imgScale = 1;
       uploadZone.classList.add('hidden');
       $('preview-zone').classList.remove('hidden');
+      $('img-controls').classList.remove('hidden');
+      URL.revokeObjectURL(url);
     };
-    img.src = e.target.result;
+    img.src = url;
+  });
+}
+
+function readOrientation(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const view = new DataView(e.target.result);
+        if (view.getUint16(0, false) !== 0xFFD8) return resolve(1);
+        let offset = 2;
+        while (offset < view.byteLength) {
+          const marker = view.getUint16(offset, false);
+          offset += 2;
+          if (marker === 0xFFE1) {
+            if (view.getUint32(offset + 2, false) !== 0x45786966) return resolve(1);
+            const little = view.getUint16(offset + 8, false) === 0x4949;
+            const count = view.getUint16(offset + 14, little);
+            for (let i = 0; i < count; i++) {
+              const tag = view.getUint16(offset + 16 + i * 12, little);
+              if (tag === 0x0112) {
+                return resolve(view.getUint16(offset + 16 + i * 12 + 8, little));
+              }
+            }
+            return resolve(1);
+          }
+          if ((marker & 0xFF00) !== 0xFF00) break;
+          offset += view.getUint16(offset, false);
+        }
+        resolve(1);
+      } catch { resolve(1); }
+    };
+    reader.readAsArrayBuffer(file.slice(0, 64 * 1024));
+  });
+}
+
+// 회전/확대 버튼
+$('btn-rotate-left').addEventListener('click', () => {
+  imgRotation = (imgRotation - 90 + 360) % 360;
+  reRenderRotated();
+});
+$('btn-rotate-right').addEventListener('click', () => {
+  imgRotation = (imgRotation + 90) % 360;
+  reRenderRotated();
+});
+$('btn-zoom-in').addEventListener('click', () => {
+  imgScale = Math.min(imgScale + 0.25, 3);
+  applyImgTransform();
+});
+$('btn-zoom-out').addEventListener('click', () => {
+  imgScale = Math.max(imgScale - 0.25, 0.5);
+  applyImgTransform();
+});
+
+function reRenderRotated() {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const r = imgRotation;
+    const needSwap = r === 90 || r === 270;
+    const cw = needSwap ? img.naturalHeight : img.naturalWidth;
+    const ch = needSwap ? img.naturalWidth : img.naturalHeight;
+    canvas.width = cw; canvas.height = ch;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(cw / 2, ch / 2);
+    ctx.rotate((r * Math.PI) / 180);
+    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.85);
+    $('preview-img').src = state.uploadedImage;
+    $('preview-img').style.transform = `scale(${imgScale})`;
+    imgRotation = 0;
   };
-  reader.readAsDataURL(file);
+  img.src = state.uploadedImage;
 }
 
 /* ══════════════════════════════════════
