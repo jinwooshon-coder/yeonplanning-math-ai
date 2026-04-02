@@ -60,34 +60,20 @@
     .gap-16 { gap: 16px; }
 
     /* ════════════════════════════════
-       로그인 화면
+       로그인 모달
     ════════════════════════════════ */
-    #login-screen {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
       align-items: center;
       justify-content: center;
       padding: 24px;
-      background: radial-gradient(ellipse at 50% 0%, #0d2a45 0%, #0a1628 70%);
     }
-    .login-logo {
-      font-size: 48px;
-      margin-bottom: 8px;
-    }
-    .login-brand {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--accent2);
-      letter-spacing: -0.5px;
-      margin-bottom: 4px;
-    }
-    .login-sub {
-      font-size: 13px;
-      color: var(--text-sub);
-      margin-bottom: 40px;
-    }
-    .login-card {
+    .modal-overlay.show { display: flex; }
+    .modal-card {
       width: 100%;
       max-width: 360px;
       background: var(--surface);
@@ -95,8 +81,17 @@
       border-radius: 20px;
       padding: 28px 24px;
       box-shadow: var(--shadow);
+      position: relative;
     }
-    .login-card h2 {
+    .modal-close {
+      position: absolute;
+      top: 12px; right: 14px;
+      background: none; border: none;
+      color: var(--text-dim);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal-card h2 {
       font-size: 16px;
       font-weight: 600;
       color: var(--text-sub);
@@ -164,11 +159,81 @@
       margin-top: 10px;
       min-height: 18px;
     }
-    .login-hint {
+
+    /* 헤더 로그인 버튼 */
+    .btn-header-login {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-sub);
+      font-size: 12px;
+      font-family: var(--font);
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    /* 무료 체험 배지 */
+    .trial-badge {
+      background: rgba(245,158,11,0.15);
+      border: 1px solid var(--warn);
+      color: var(--warn);
+      border-radius: 20px;
+      padding: 3px 10px;
       font-size: 11px;
-      color: var(--text-dim);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .trial-badge.exhausted {
+      background: rgba(255,77,109,0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* 체험 종료 모달 */
+    .limit-modal-body {
       text-align: center;
-      margin-top: 16px;
+      padding: 8px 0;
+    }
+    .limit-modal-body .limit-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .limit-modal-body h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .limit-modal-body p {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .limit-modal-body .limit-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .limit-modal-body .btn-signup {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+    .limit-modal-body .btn-tomorrow {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 13px;
+      color: var(--text-sub);
+      font-family: var(--font);
+      cursor: pointer;
     }
 
     /* ════════════════════════════════
@@ -714,14 +779,11 @@
 <body>
 
 <!-- ══════════════════════════════════
-     로그인 화면
+     로그인 모달
 ══════════════════════════════════ -->
-<div id="login-screen">
-  <div class="login-logo">🧮</div>
-  <div class="login-brand">수풀AI</div>
-  <div class="login-sub">AI가 수학 문제를 3가지 방법으로 풀어드려요</div>
-
-  <div class="login-card">
+<div class="modal-overlay" id="login-modal">
+  <div class="modal-card">
+    <button class="modal-close" id="login-modal-close">✕</button>
     <h2>학생 로그인</h2>
     <div class="input-group">
       <label>이름</label>
@@ -734,17 +796,23 @@
     </div>
     <button class="btn-primary" id="btn-login">로그인</button>
     <div class="login-error" id="login-error"></div>
-    <div class="login-hint">코드를 모르면 연소사 선생님께 문의하세요 📞</div>
+  </div>
+</div>
 
-    <!-- 설치 배너 (로그인 화면) - 항상 표시 -->
-    <div class="install-banner show" id="install-banner-login">
-      <div class="install-banner-icon">📲</div>
-      <div class="install-banner-text">
-        <strong>앱으로 설치하기</strong>
-        <span>홈화면에 추가하면 앱처럼 사용 가능해요</span>
+<!-- ══════════════════════════════════
+     체험 종료 모달
+══════════════════════════════════ -->
+<div class="modal-overlay" id="limit-modal">
+  <div class="modal-card">
+    <button class="modal-close" id="limit-modal-close">✕</button>
+    <div class="limit-modal-body">
+      <div class="limit-icon">🔒</div>
+      <h3>오늘 무료 체험이 끝났어요</h3>
+      <p id="limit-modal-msg">내일 다시 무료로 사용할 수 있어요.<br>회원가입하면 무제한으로 풀 수 있어요!</p>
+      <div class="limit-btns">
+        <button class="btn-signup" id="btn-limit-signup">지금 회원가입</button>
+        <button class="btn-tomorrow" id="btn-limit-close">내일 다시 오기</button>
       </div>
-      <button class="btn-install" id="btn-install-login">설치</button>
-      <button class="btn-install-close" id="btn-install-close-login">✕</button>
     </div>
   </div>
 </div>
@@ -752,17 +820,19 @@
 <!-- ══════════════════════════════════
      메인 앱
 ══════════════════════════════════ -->
-<div id="app" class="hidden">
+<div id="app">
 
   <!-- 헤더 -->
   <header id="app-header">
     <div class="header-brand">수풀AI</div>
     <div class="header-user">
-      <div class="header-student">
+      <span class="trial-badge" id="trial-badge"></span>
+      <div class="header-student hidden" id="header-student-info">
         <strong id="student-name-display">-</strong>
         <span id="student-grade-display"></span>
       </div>
-      <button class="btn-logout" id="btn-logout">로그아웃</button>
+      <button class="btn-header-login" id="btn-header-login">👤 로그인</button>
+      <button class="btn-logout hidden" id="btn-logout">로그아웃</button>
     </div>
   </header>
 
@@ -983,28 +1053,22 @@ window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 
-  // 이미 설치됐으면 안 보여줌
   if (localStorage.getItem('pwa_installed')) return;
   if (localStorage.getItem('pwa_dismissed')) return;
 
-  // 배너 표시
-  $('install-banner-login').classList.add('show');
   $('install-banner-app').classList.add('show');
 });
 
 async function doInstall() {
   if (deferredPrompt) {
-    // 안드로이드 크롬 - 자동 설치
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
       localStorage.setItem('pwa_installed', '1');
-      $('install-banner-login').classList.remove('show');
       $('install-banner-app').classList.remove('show');
     }
     deferredPrompt = null;
   } else {
-    // iOS / PC 수동 안내
     const ua = navigator.userAgent;
     const isIOS = /iPad|iPhone|iPod/.test(ua);
     const isMac = /Mac/.test(ua);
@@ -1022,19 +1086,14 @@ async function doInstall() {
 
 function dismissInstall() {
   localStorage.setItem('pwa_dismissed', '1');
-  $('install-banner-login').classList.remove('show');
   $('install-banner-app').classList.remove('show');
 }
 
-$('btn-install-login').addEventListener('click', doInstall);
 $('btn-install-app').addEventListener('click', doInstall);
-$('btn-install-close-login').addEventListener('click', dismissInstall);
 $('btn-install-close-app').addEventListener('click', dismissInstall);
 
-// 설치 완료 감지
 window.addEventListener('appinstalled', () => {
   localStorage.setItem('pwa_installed', '1');
-  $('install-banner-login').classList.remove('show');
   $('install-banner-app').classList.remove('show');
 });
 if ('serviceWorker' in navigator) {
@@ -1061,16 +1120,115 @@ function renderMath(el) {
 }
 
 /* ══════════════════════════════════════
-   로그인
+   무료 체험 횟수 관리
 ══════════════════════════════════════ */
 const $ = (id) => document.getElementById(id);
+
+function getToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function getTrialInfo() {
+  // 최초 방문일 기록
+  let firstVisit = localStorage.getItem('firstVisitDate');
+  if (!firstVisit) {
+    firstVisit = getToday();
+    localStorage.setItem('firstVisitDate', firstVisit);
+  }
+
+  // 경과 일수 → 주차 계산
+  const diffMs = new Date(getToday()) - new Date(firstVisit);
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const week = Math.floor(diffDays / 7) + 1; // 1주차부터
+
+  // 주차별 일일 횟수
+  let dailyLimit;
+  if (week <= 1) dailyLimit = 3;
+  else if (week <= 2) dailyLimit = 2;
+  else if (week <= 3) dailyLimit = 1;
+  else dailyLimit = 0;
+
+  // 오늘 사용 횟수
+  const today = getToday();
+  const usedToday = parseInt(localStorage.getItem('dailyUsage:' + today) || '0', 10);
+
+  return { week, dailyLimit, usedToday, remaining: Math.max(0, dailyLimit - usedToday) };
+}
+
+function incrementUsage() {
+  const today = getToday();
+  const key = 'dailyUsage:' + today;
+  const used = parseInt(localStorage.getItem(key) || '0', 10);
+  localStorage.setItem(key, String(used + 1));
+}
+
+function updateTrialBadge() {
+  const badge = $('trial-badge');
+  if (state.student) {
+    badge.classList.add('hidden');
+    return;
+  }
+  const { remaining, dailyLimit, week } = getTrialInfo();
+  badge.classList.remove('hidden');
+  if (dailyLimit === 0) {
+    badge.textContent = '체험 종료';
+    badge.classList.add('exhausted');
+  } else if (remaining === 0) {
+    badge.textContent = '오늘 0회 남음';
+    badge.classList.add('exhausted');
+  } else {
+    badge.textContent = '오늘 ' + remaining + '회 남음';
+    badge.classList.remove('exhausted');
+  }
+}
+
+function canUseTrial() {
+  if (state.student) return true; // 회원은 무제한
+  const { remaining, dailyLimit } = getTrialInfo();
+  return remaining > 0;
+}
+
+function showLimitModal() {
+  const { week, dailyLimit } = getTrialInfo();
+  const msg = dailyLimit === 0
+    ? '무료 체험 기간이 종료되었어요.<br>회원가입하면 무제한으로 풀 수 있어요!'
+    : '내일 다시 무료로 사용할 수 있어요.<br>회원가입하면 무제한으로 풀 수 있어요!';
+  $('limit-modal-msg').innerHTML = msg;
+  $('limit-modal').classList.add('show');
+}
+
+/* ══════════════════════════════════════
+   로그인 (모달)
+══════════════════════════════════════ */
 
 // 저장된 세션 복원
 const saved = localStorage.getItem('yp_student');
 if (saved) {
   state.student = JSON.parse(saved);
-  showApp();
+  applyLoginState();
 }
+updateTrialBadge();
+
+// 헤더 로그인 버튼 → 모달 열기
+$('btn-header-login').addEventListener('click', () => {
+  $('login-modal').classList.add('show');
+});
+$('login-modal-close').addEventListener('click', () => {
+  $('login-modal').classList.remove('show');
+});
+
+// 체험 종료 모달 닫기
+$('limit-modal-close').addEventListener('click', () => {
+  $('limit-modal').classList.remove('show');
+});
+$('btn-limit-close').addEventListener('click', () => {
+  $('limit-modal').classList.remove('show');
+});
+$('btn-limit-signup').addEventListener('click', () => {
+  $('limit-modal').classList.remove('show');
+  $('login-modal').classList.add('show');
+});
 
 $('btn-login').addEventListener('click', doLogin);
 $('input-code').addEventListener('keydown', (e) => {
@@ -1100,7 +1258,8 @@ async function doLogin() {
     if (data.ok) {
       state.student = { name: data.name, code, grade: data.grade };
       localStorage.setItem('yp_student', JSON.stringify(state.student));
-      showApp();
+      $('login-modal').classList.remove('show');
+      applyLoginState();
     } else {
       $('login-error').textContent = data.message || '코드가 맞지 않아요. 다시 확인해주세요.';
     }
@@ -1113,16 +1272,25 @@ async function doLogin() {
   }
 }
 
-function showApp() {
-  $('login-screen').classList.add('hidden');
-  $('app').classList.remove('hidden');
-  $('student-name-display').textContent = state.student.name;
-  $('student-grade-display').textContent = state.student.grade ? ` (${state.student.grade})` : '';
+function applyLoginState() {
+  if (state.student) {
+    $('student-name-display').textContent = state.student.name;
+    $('student-grade-display').textContent = state.student.grade ? ' (' + state.student.grade + ')' : '';
+    $('header-student-info').classList.remove('hidden');
+    $('btn-header-login').classList.add('hidden');
+    $('btn-logout').classList.remove('hidden');
+  } else {
+    $('header-student-info').classList.add('hidden');
+    $('btn-header-login').classList.remove('hidden');
+    $('btn-logout').classList.add('hidden');
+  }
+  updateTrialBadge();
 }
 
 $('btn-logout').addEventListener('click', () => {
   localStorage.removeItem('yp_student');
-  location.reload();
+  state.student = null;
+  applyLoginState();
 });
 
 /* ══════════════════════════════════════
@@ -1358,6 +1526,12 @@ async function doSolve() {
     return;
   }
 
+  // 무료 체험 횟수 체크 (회원은 통과)
+  if (!canUseTrial()) {
+    showLimitModal();
+    return;
+  }
+
   state.startTime = Date.now();
   $('result-zone').classList.add('hidden');
   if (state.uploadedImage) {
@@ -1400,6 +1574,12 @@ async function doSolve() {
     renderResult(data);
     $('loading-zone').classList.add('hidden');
     $('result-zone').classList.remove('hidden');
+
+    // 비회원이면 사용 횟수 차감
+    if (!state.student) {
+      incrementUsage();
+      updateTrialBadge();
+    }
 
     // 자동 저장 (백그라운드)
     autoSave(data, text);
