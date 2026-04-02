@@ -286,8 +286,11 @@
     }
     .upload-preview img {
       width: 100%;
+      max-height: 260px;
+      object-fit: contain;
       border-radius: var(--radius);
       display: block;
+      background: #000;
     }
     .upload-preview .btn-remove {
       position: absolute;
@@ -341,17 +344,17 @@
 
     /* 로딩 */
     .solve-loading {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: rgba(10, 22, 40, 0.85);
-  border-radius: var(--radius);
-  gap: 14px;
-  z-index: 10;
-}
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10, 22, 40, 0.85);
+      border-radius: var(--radius);
+      gap: 14px;
+      z-index: 10;
+    }
     .loading-dots {
       display: flex; gap: 6px;
     }
@@ -651,7 +654,7 @@
 
       <!-- 이미지 업로드 -->
       <div class="solve-upload" id="upload-zone">
-        <input type="file" id="file-input" accept="image/*"/>
+        <input type="file" id="file-input" accept="image/*" capture="environment" />
         <div class="upload-icon">📸</div>
         <div class="upload-title">수학 문제 사진 업로드</div>
         <div class="upload-hint">드래그 / 클릭 / Ctrl+V 붙여넣기<br>카메라 촬영도 가능해요</div>
@@ -953,81 +956,25 @@ $('btn-remove-img').addEventListener('click', () => {
   fileInput.value = '';
 });
 
-if (w > MAX) { ... }  // 1500px 넘을 때만 줄임
-if (h > MAX) { ... }  // 1500px 넘을 때만 줄임
-```
-
-1500px 이하 이미지는 **전혀 건드리지 않아요** ✅
-
-그냥 위 코드 적용하면 돼요! 😊
-
-**Ctrl+S** 후:
-```
-git add .
-git commit -m "큰 이미지만 압축"
-git push origin HEAD(file) {
+function loadImageFile(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const MAX = 800;
+      const MAX = 1500;
       let w = img.width, h = img.height;
       if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
       if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
       canvas.width = w;
       canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      state.uploadedImage = canvas.toDataURL('image/jpeg', 0.6);
+      state.uploadedImage = canvas.toDataURL('image/jpeg', 0.85);
       $('preview-img').src = state.uploadedImage;
       uploadZone.classList.add('hidden');
       $('preview-zone').classList.remove('hidden');
     };
     img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-```
-
-**Ctrl+S** 후:
-```
-git add .
-git commit -m "이미지 압축으로 속도 개선"
-git push origin HEAD(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      // 최대 1000px로 압축
-      const canvas = document.createElement('canvas');
-      const MAX = 1000;
-      let w = img.width, h = img.height;
-      if (w > MAX) { h = h * MAX / w; w = MAX; }
-      if (h > MAX) { w = w * MAX / h; h = MAX; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      state.uploadedImage = canvas.toDataURL('image/jpeg', 0.7);
-      $('preview-img').src = state.uploadedImage;
-      uploadZone.classList.add('hidden');
-      $('preview-zone').classList.remove('hidden');
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-```
-
-**Ctrl+S** 후:
-```
-git add .
-git commit -m "이미지 압축으로 타임아웃 해결"
-git push(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    state.uploadedImage = e.target.result;
-    $('preview-img').src = state.uploadedImage;
-    uploadZone.classList.add('hidden');
-    $('preview-zone').classList.remove('hidden');
   };
   reader.readAsDataURL(file);
 }
@@ -1048,9 +995,9 @@ async function doSolve() {
 
   state.startTime = Date.now();
   $('result-zone').classList.add('hidden');
-  $('preview-zone').appendChild($('loading-zone'));
-```
-
+  if (state.uploadedImage) {
+    $('preview-zone').appendChild($('loading-zone'));
+  }
   $('loading-zone').classList.remove('hidden');
   $('btn-solve').disabled = true;
 
