@@ -595,6 +595,54 @@
     /* 난이도 별 */
     .difficulty-stars { color: var(--warn); font-size: 14px; }
 
+    /* PWA 설치 배너 */
+    .install-banner {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(29,158,117,0.15), rgba(20,201,138,0.1));
+      border: 1px solid rgba(29,158,117,0.4);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin: 12px 0 0;
+    }
+    .install-banner.show { display: flex; }
+    .install-banner-icon { font-size: 28px; flex-shrink: 0; }
+    .install-banner-text { flex: 1; }
+    .install-banner-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .install-banner-text span {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+    .btn-install {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font);
+      padding: 8px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-install-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 0 0 4px;
+      flex-shrink: 0;
+    }
+
     /* ════════════════════════════════
        탭 2: 진도 관리 (Phase 2 플레이스홀더)
     ════════════════════════════════ */
@@ -674,6 +722,17 @@
     <button class="btn-primary" id="btn-login">로그인</button>
     <div class="login-error" id="login-error"></div>
     <div class="login-hint">코드를 모르면 연소사 선생님께 문의하세요 📞</div>
+
+    <!-- 설치 배너 (로그인 화면) - 항상 표시 -->
+    <div class="install-banner show" id="install-banner-login">
+      <div class="install-banner-icon">📲</div>
+      <div class="install-banner-text">
+        <strong>앱으로 설치하기</strong>
+        <span>홈화면에 추가하면 앱처럼 사용 가능해요</span>
+      </div>
+      <button class="btn-install" id="btn-install-login">설치</button>
+      <button class="btn-install-close" id="btn-install-close-login">✕</button>
+    </div>
   </div>
 </div>
 
@@ -702,6 +761,19 @@
     <button class="tab-btn" data-tab="bank">📚 문제뱅크</button>
     <button class="tab-btn" data-tab="board">💬 게시판</button>
   </nav>
+
+  <!-- 설치 배너 (앱 화면) - 항상 표시 -->
+  <div style="padding: 0 12px;">
+    <div class="install-banner show" id="install-banner-app">
+      <div class="install-banner-icon">📲</div>
+      <div class="install-banner-text">
+        <strong>앱으로 설치하면 더 편해요!</strong>
+        <span>홈화면에서 바로 실행 · 오프라인도 OK</span>
+      </div>
+      <button class="btn-install" id="btn-install-app">설치</button>
+      <button class="btn-install-close" id="btn-install-close-app">✕</button>
+    </div>
+  </div>
 
   <!-- 탭 컨텐츠 -->
   <div id="tab-content">
@@ -890,8 +962,68 @@ const state = {
 };
 
 /* ══════════════════════════════════════
-   PWA 서비스워커 등록
+   PWA 설치 프롬프트
 ══════════════════════════════════════ */
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // 이미 설치됐으면 안 보여줌
+  if (localStorage.getItem('pwa_installed')) return;
+  if (localStorage.getItem('pwa_dismissed')) return;
+
+  // 배너 표시
+  $('install-banner-login').classList.add('show');
+  $('install-banner-app').classList.add('show');
+});
+
+async function doInstall() {
+  if (deferredPrompt) {
+    // 안드로이드 크롬 - 자동 설치
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      localStorage.setItem('pwa_installed', '1');
+      $('install-banner-login').classList.remove('show');
+      $('install-banner-app').classList.remove('show');
+    }
+    deferredPrompt = null;
+  } else {
+    // iOS / PC 수동 안내
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isMac = /Mac/.test(ua);
+    const isAndroid = /Android/.test(ua);
+
+    if (isIOS || isMac) {
+      alert('📱 아이폰 / 아이패드 설치 방법:\n\n1. 하단 공유 버튼(□↑) 탭\n2. "홈 화면에 추가" 선택\n3. 오른쪽 상단 "추가" 탭!');
+    } else if (isAndroid) {
+      alert('📱 안드로이드 설치 방법:\n\n1. 브라우저 우측 상단 ⋮ 메뉴\n2. "홈 화면에 추가" 또는\n   "앱 설치" 선택!');
+    } else {
+      alert('💻 PC 설치 방법:\n\n[크롬] 주소창 오른쪽 ⊕ 아이콘 클릭\n[엣지] 주소창 오른쪽 앱 아이콘 클릭\n\n아이콘이 없으면:\n브라우저 메뉴(⋮) → "앱 설치" 선택!');
+    }
+  }
+}
+
+function dismissInstall() {
+  localStorage.setItem('pwa_dismissed', '1');
+  $('install-banner-login').classList.remove('show');
+  $('install-banner-app').classList.remove('show');
+}
+
+$('btn-install-login').addEventListener('click', doInstall);
+$('btn-install-app').addEventListener('click', doInstall);
+$('btn-install-close-login').addEventListener('click', dismissInstall);
+$('btn-install-close-app').addEventListener('click', dismissInstall);
+
+// 설치 완료 감지
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('pwa_installed', '1');
+  $('install-banner-login').classList.remove('show');
+  $('install-banner-app').classList.remove('show');
+});
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
