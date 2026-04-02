@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="수풀AI" />
   <title>수풀AI</title>
   <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" href="/icon-192.png" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -1044,6 +1045,8 @@ const state = {
   solveTab: 'A',        // 현재 풀이법 탭
 };
 
+const $ = (id) => document.getElementById(id);
+
 /* ══════════════════════════════════════
    PWA 설치 프롬프트
 ══════════════════════════════════════ */
@@ -1122,7 +1125,6 @@ function renderMath(el) {
 /* ══════════════════════════════════════
    무료 체험 횟수 관리
 ══════════════════════════════════════ */
-const $ = (id) => document.getElementById(id);
 
 function getToday() {
   const d = new Date();
