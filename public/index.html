@@ -99,68 +99,6 @@
       margin-bottom: 20px;
       text-align: center;
     }
-    .input-group {
-      margin-bottom: 14px;
-    }
-    .input-group label {
-      display: block;
-      font-size: 12px;
-      color: var(--text-sub);
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-    .input-group input {
-      width: 100%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      color: var(--text);
-      font-size: 16px;
-      font-family: var(--font);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .input-group input:focus {
-      border-color: var(--accent);
-    }
-    .input-group input::placeholder { color: var(--text-dim); }
-    .btn-primary {
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 700;
-      font-family: var(--font);
-      cursor: pointer;
-      margin-top: 8px;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
-    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-    .btn-primary .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .login-error {
-      color: var(--danger);
-      font-size: 13px;
-      text-align: center;
-      margin-top: 10px;
-      min-height: 18px;
-    }
-
     /* 헤더 로그인 버튼 */
     .btn-header-login {
       background: var(--card);
@@ -780,27 +718,6 @@
 <body>
 
 <!-- ══════════════════════════════════
-     로그인 모달
-══════════════════════════════════ -->
-<div class="modal-overlay" id="login-modal">
-  <div class="modal-card">
-    <button class="modal-close" id="login-modal-close">✕</button>
-    <h2>학생 로그인</h2>
-    <div class="input-group">
-      <label>이름</label>
-      <input type="text" id="input-name" placeholder="홍길동" autocomplete="name" />
-    </div>
-    <div class="input-group">
-      <label>학생 코드 (선생님께 받은 코드)</label>
-      <input type="text" id="input-code" placeholder="예: YP-1234" autocomplete="off"
-             style="letter-spacing:2px; text-transform:uppercase;" />
-    </div>
-    <button class="btn-primary" id="btn-login">로그인</button>
-    <div class="login-error" id="login-error"></div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════
      체험 종료 모달
 ══════════════════════════════════ -->
 <div class="modal-overlay" id="limit-modal">
@@ -811,7 +728,7 @@
       <h3>오늘 무료 체험이 끝났어요</h3>
       <p id="limit-modal-msg">내일 다시 무료로 사용할 수 있어요.<br>회원가입하면 무제한으로 풀 수 있어요!</p>
       <div class="limit-btns">
-        <button class="btn-signup" id="btn-limit-signup">지금 회원가입</button>
+        <button class="btn-signup" id="btn-limit-signup">회원가입 문의</button>
         <button class="btn-tomorrow" id="btn-limit-close">내일 다시 오기</button>
       </div>
     </div>
@@ -1202,80 +1119,16 @@ function showLimitModal() {
 }
 
 /* ══════════════════════════════════════
-   로그인 (모달)
+   세션 복원 + 헤더 상태
 ══════════════════════════════════════ */
-
-// 저장된 세션 복원
 const saved = localStorage.getItem('yp_student');
 if (saved) {
   state.student = JSON.parse(saved);
-  applyLoginState();
 }
 updateTrialBadge();
 
-// 헤더 로그인 버튼 → 모달 열기
-$('btn-header-login').addEventListener('click', () => {
-  $('login-modal').classList.add('show');
-});
-$('login-modal-close').addEventListener('click', () => {
-  $('login-modal').classList.remove('show');
-});
-
-// 체험 종료 모달 닫기
-$('limit-modal-close').addEventListener('click', () => {
-  $('limit-modal').classList.remove('show');
-});
-$('btn-limit-close').addEventListener('click', () => {
-  $('limit-modal').classList.remove('show');
-});
-$('btn-limit-signup').addEventListener('click', () => {
-  $('limit-modal').classList.remove('show');
-  $('login-modal').classList.add('show');
-});
-
-$('btn-login').addEventListener('click', doLogin);
-$('input-code').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') doLogin();
-});
-
-async function doLogin() {
-  const name = $('input-name').value.trim();
-  const code = $('input-code').value.trim().toUpperCase();
-  if (!name || !code) {
-    $('login-error').textContent = '이름과 코드를 모두 입력해주세요';
-    return;
-  }
-
-  $('btn-login').disabled = true;
-  $('btn-login').innerHTML = '<span class="spinner"></span>확인 중...';
-  $('login-error').textContent = '';
-
-  try {
-    const res = await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, code }),
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      state.student = { name: data.name, code, grade: data.grade };
-      localStorage.setItem('yp_student', JSON.stringify(state.student));
-      $('login-modal').classList.remove('show');
-      applyLoginState();
-    } else {
-      $('login-error').textContent = data.message || '코드가 맞지 않아요. 다시 확인해주세요.';
-    }
-  } catch (err) {
-    console.error('로그인 오류:', err);
-    $('login-error').textContent = '서버 연결 오류. 인터넷 연결을 확인하고 다시 시도해주세요.';
-  } finally {
-    $('btn-login').disabled = false;
-    $('btn-login').textContent = '로그인';
-  }
-}
-
-function applyLoginState() {
+// 헤더 로그인/로그아웃 상태 반영
+function applyHeaderState() {
   if (state.student) {
     $('student-name-display').textContent = state.student.name;
     $('student-grade-display').textContent = state.student.grade ? ' (' + state.student.grade + ')' : '';
@@ -1289,11 +1142,29 @@ function applyLoginState() {
   }
   updateTrialBadge();
 }
+applyHeaderState();
+
+// 로그인 버튼 — 준비 중 안내
+$('btn-header-login').addEventListener('click', () => {
+  alert('회원 기능 준비 중입니다.\n문의: 연소사 선생님');
+});
+
+// 체험 종료 모달 닫기
+$('limit-modal-close').addEventListener('click', () => {
+  $('limit-modal').classList.remove('show');
+});
+$('btn-limit-close').addEventListener('click', () => {
+  $('limit-modal').classList.remove('show');
+});
+$('btn-limit-signup').addEventListener('click', () => {
+  $('limit-modal').classList.remove('show');
+  alert('회원 가입 문의: 연소사 선생님');
+});
 
 $('btn-logout').addEventListener('click', () => {
   localStorage.removeItem('yp_student');
   state.student = null;
-  applyLoginState();
+  applyHeaderState();
 });
 
 /* ══════════════════════════════════════
