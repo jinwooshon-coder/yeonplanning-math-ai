@@ -1,10 +1,10 @@
-# 연플래닝 수학AI
+# 수풀AI
 
 ## 🚀 로컬 개발 시작하기
 
 ### 1단계 — 이 폴더를 VS Code로 열기
 ```
-파일 > 폴더 열기 > yeonplanning-math-ai 폴더 선택
+파일 > 폴더 열기 > supulai 폴더 선택
 ```
 
 ### 2단계 — 패키지 설치
@@ -52,7 +52,7 @@ netlify dev
 git init
 git add .
 git commit -m "초기 커밋"
-git remote add origin https://github.com/계정/yeonplanning-math-ai.git
+git remote add origin https://github.com/계정/supulai.git
 git push -u origin main
 ```
 Netlify에서 GitHub 저장소 연결하면 자동 배포!
@@ -62,7 +62,7 @@ Netlify에서 GitHub 저장소 연결하면 자동 배포!
 ## 📁 폴더 구조
 
 ```
-yeonplanning-math-ai/
+supulai/
 ├── public/
 │   ├── index.html      ← 메인 앱 (여기서 UI 수정)
 │   ├── manifest.json   ← PWA 설정

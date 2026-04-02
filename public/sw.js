@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yeonplanning-v1';
+const CACHE_NAME = 'supulai-cache-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

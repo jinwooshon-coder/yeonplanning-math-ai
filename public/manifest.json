@@ -1,6 +1,6 @@
 {
-  "name": "연플래닝 수학AI",
-  "short_name": "수학AI",
+  "name": "수풀AI",
+  "short_name": "수풀AI",
   "description": "AI가 수학 문제를 3가지 방법으로 풀어드려요",
   "start_url": "/",
   "display": "standalone",
