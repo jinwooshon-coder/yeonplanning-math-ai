@@ -114,15 +114,37 @@ exports.handler = async (event) => {
     const apiData = await apiRes.json();
     const rawText = apiData.content?.[0]?.text || '';
 
-    // JSON 파싱
+    // JSON 파싱 (여분의 텍스트가 붙어 올 수 있으므로 단계별 추출)
     let result;
     try {
-      // 혹시 ```json 블록이 있으면 제거
+      // 1차: 코드블록 제거 후 그대로 파싱
       const cleaned = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       result = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.error('[SOLVE] JSON 파싱 실패:', rawText.slice(0, 200));
-      throw new Error('AI 응답 파싱 오류: ' + parseErr.message);
+    } catch {
+      try {
+        // 2차: 첫 번째 { ~ 마지막 } 추출
+        const first = rawText.indexOf('{');
+        const last = rawText.lastIndexOf('}');
+        if (first !== -1 && last > first) {
+          result = JSON.parse(rawText.slice(first, last + 1));
+        } else {
+          throw new Error('JSON 객체를 찾을 수 없음');
+        }
+      } catch {
+        // 3차: 정규식으로 JSON 블록 추출
+        const jsonMatch = rawText.match(/\{[\s\S]*"problem"[\s\S]*"solutions"[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            result = JSON.parse(jsonMatch[0]);
+          } catch (e3) {
+            console.error('[SOLVE] JSON 파싱 최종 실패. 원본 텍스트:', rawText);
+            throw new Error('AI 응답 파싱 오류: ' + e3.message);
+          }
+        } else {
+          console.error('[SOLVE] JSON 추출 불가. 원본 텍스트:', rawText);
+          throw new Error('AI 응답에서 JSON을 찾을 수 없습니다');
+        }
+      }
     }
 
     return {
