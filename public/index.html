@@ -341,12 +341,17 @@
 
     /* 로딩 */
     .solve-loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 16px;
-      gap: 14px;
-    }
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 22, 40, 0.85);
+  border-radius: var(--radius);
+  gap: 14px;
+  z-index: 10;
+}
     .loading-dots {
       display: flex; gap: 6px;
     }
@@ -1043,6 +1048,9 @@ async function doSolve() {
 
   state.startTime = Date.now();
   $('result-zone').classList.add('hidden');
+  $('preview-zone').appendChild($('loading-zone'));
+```
+
   $('loading-zone').classList.remove('hidden');
   $('btn-solve').disabled = true;
 

@@ -12,10 +12,3 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-```
-
-**Ctrl+S** 후:
-```
-git add .
-git commit -m "함수 타임아웃 30초로 늘리기"
-git push
