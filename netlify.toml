@@ -2,8 +2,20 @@
   publish = "public"
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+
+[functions.solve]
+  timeout = 30
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-  
+```
+
+**Ctrl+S** 후:
+```
+git add .
+git commit -m "함수 타임아웃 30초로 늘리기"
+git push
