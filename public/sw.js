@@ -1,4 +1,4 @@
-const CACHE_NAME = 'supulai-cache-v13';
+const CACHE_NAME = 'supulai-cache-v14';
 const STATIC_ASSETS = [
     '/',
     '/index.html',

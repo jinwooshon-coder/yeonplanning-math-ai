@@ -1130,6 +1130,107 @@
       margin-top: 14px;
     }
 
+    /* ══════════════════════════════
+       게시판 탭
+    ══════════════════════════════ */
+    .board-wrap { padding: 16px; }
+    .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .board-header h3 { font-size: 17px; font-weight: 800; color: var(--text); margin: 0; }
+    .board-write-btn {
+      padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+      border: none; cursor: pointer; transition: all .2s;
+    }
+    .board-write-btn:hover { opacity: .85; transform: scale(1.03); }
+    .board-cats { display: flex; gap: 8px; margin-bottom: 16px; }
+    .board-cat {
+      flex: 1; padding: 9px 0; text-align: center; font-size: 13px; font-weight: 700;
+      background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      color: var(--text-sub); cursor: pointer; transition: all .2s;
+    }
+    .board-cat.active { background: rgba(16,185,129,0.1); border-color: var(--accent); color: var(--accent); }
+    .board-cat[data-cat="notice"].active { background: rgba(245,158,11,0.1); border-color: var(--warn); color: var(--warn); }
+    .board-cat[data-cat="qna"].active { background: rgba(59,130,246,0.1); border-color: var(--sol-a); color: var(--sol-a); }
+    .board-list { display: flex; flex-direction: column; gap: 10px; }
+    .board-item {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px 16px; cursor: pointer; transition: all .2s;
+    }
+    .board-item:hover { border-color: var(--accent); }
+    .board-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .board-badge {
+      font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700;
+    }
+    .board-badge.notice { background: rgba(245,158,11,0.12); color: var(--warn); }
+    .board-badge.qna { background: rgba(59,130,246,0.12); color: var(--sol-a); }
+    .board-badge.answered { background: rgba(16,185,129,0.12); color: var(--accent); }
+    .board-item-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .board-item-body { font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-bottom: 8px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .board-item-meta { font-size: 11px; color: var(--text-dim); display: flex; gap: 10px; }
+    .board-empty { text-align: center; padding: 60px 24px; color: var(--text-dim); font-size: 14px; }
+
+    /* 게시판 글쓰기 폼 */
+    .board-form { display: none; }
+    .board-form.show { display: block; }
+    .board-form-group { margin-bottom: 14px; }
+    .board-form-label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; display: block; }
+    .board-form-select, .board-form-input, .board-form-textarea {
+      width: 100%; padding: 10px 12px; background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text); font-size: 14px;
+      font-family: inherit; box-sizing: border-box;
+    }
+    .board-form-textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+    .board-form-select:focus, .board-form-input:focus, .board-form-textarea:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .board-form-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .board-form-actions button {
+      flex: 1; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700;
+      border: none; cursor: pointer; transition: all .2s;
+    }
+    .board-btn-submit { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+    .board-btn-cancel { background: var(--surface2); color: var(--text-sub); border: 1.5px solid var(--border) !important; }
+
+    /* 게시판 상세보기 */
+    .board-detail { display: none; }
+    .board-detail.show { display: block; }
+    .board-detail-back {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-sub);
+      cursor: pointer; margin-bottom: 14px; padding: 6px 0;
+    }
+    .board-detail-back:hover { color: var(--accent); }
+    .board-detail-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;
+    }
+    .board-detail-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .board-detail-title { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .board-detail-meta { font-size: 12px; color: var(--text-dim); margin-bottom: 14px; }
+    .board-detail-content { font-size: 14px; color: var(--text); line-height: 1.8; white-space: pre-wrap; }
+    .board-replies { margin-top: 20px; }
+    .board-replies-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .board-reply {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-bottom: 10px;
+    }
+    .board-reply-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; display: flex; gap: 8px; align-items: center; }
+    .board-reply-teacher { font-size: 10px; padding: 1px 6px; border-radius: 8px; background: rgba(245,158,11,0.12); color: var(--warn); font-weight: 700; }
+    .board-reply-content { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+    .board-reply-form { display: flex; gap: 8px; margin-top: 12px; }
+    .board-reply-input {
+      flex: 1; padding: 10px 12px; background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit;
+    }
+    .board-reply-input:focus { outline: none; border-color: var(--accent); }
+    .board-reply-btn {
+      padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700;
+      background: var(--accent); color: #fff; border: none; cursor: pointer; white-space: nowrap;
+    }
+    .board-delete-btn {
+      font-size: 11px; padding: 4px 10px; border-radius: 8px; background: rgba(244,63,94,0.1);
+      color: var(--danger); border: 1px solid rgba(244,63,94,0.2); cursor: pointer; margin-left: auto;
+    }
+
     /* KaTeX 오버라이드 */
     .katex { color: var(--text); font-size: 1em; }
     .katex-display { margin: 8px 0; overflow-x: auto; }
@@ -1485,11 +1586,70 @@
 
     <!-- ── 탭 5: 게시판 ── -->
     <div class="tab-panel" id="panel-board">
-      <div class="coming-soon">
-        <div class="cs-icon">💬</div>
-        <h3>학생 의견 게시판</h3>
-        <p>불편한 점, 건의 사항, 좋은 아이디어를<br>자유롭게 올려요</p>
-        <span class="coming-badge">Phase 3 개발 중</span>
+      <div class="board-wrap">
+
+        <!-- 목록 뷰 -->
+        <div id="board-list-view">
+          <div class="board-header">
+            <h3>💬 게시판</h3>
+            <button class="board-write-btn" id="btn-board-write">✏️ 글쓰기</button>
+          </div>
+          <div class="board-cats">
+            <div class="board-cat active" data-cat="all">전체</div>
+            <div class="board-cat" data-cat="notice">📢 공지</div>
+            <div class="board-cat" data-cat="qna">❓ 질문</div>
+          </div>
+          <div class="board-list" id="board-list"></div>
+        </div>
+
+        <!-- 글쓰기 폼 -->
+        <div class="board-form" id="board-form">
+          <div class="board-header">
+            <h3>✏️ 새 글 작성</h3>
+          </div>
+          <div class="board-form-group">
+            <label class="board-form-label">카테고리</label>
+            <select class="board-form-select" id="board-form-cat">
+              <option value="qna">❓ 질문/답변</option>
+              <option value="notice">📢 공지사항 (선생님 전용)</option>
+            </select>
+          </div>
+          <div class="board-form-group">
+            <label class="board-form-label">제목</label>
+            <input class="board-form-input" id="board-form-title" placeholder="제목을 입력하세요" maxlength="50">
+          </div>
+          <div class="board-form-group">
+            <label class="board-form-label">내용</label>
+            <textarea class="board-form-textarea" id="board-form-content" placeholder="내용을 자유롭게 작성하세요"></textarea>
+          </div>
+          <div class="board-form-actions">
+            <button class="board-btn-cancel" id="btn-board-cancel">취소</button>
+            <button class="board-btn-submit" id="btn-board-submit">등록하기</button>
+          </div>
+        </div>
+
+        <!-- 상세보기 -->
+        <div class="board-detail" id="board-detail">
+          <div class="board-detail-back" id="btn-board-back">← 목록으로</div>
+          <div class="board-detail-card">
+            <div class="board-detail-top">
+              <span class="board-badge" id="board-detail-badge"></span>
+              <button class="board-delete-btn" id="btn-board-delete" style="display:none;">삭제</button>
+            </div>
+            <div class="board-detail-title" id="board-detail-title"></div>
+            <div class="board-detail-meta" id="board-detail-meta"></div>
+            <div class="board-detail-content" id="board-detail-content"></div>
+          </div>
+          <div class="board-replies">
+            <div class="board-replies-title" id="board-replies-title">💬 댓글</div>
+            <div id="board-replies-list"></div>
+            <div class="board-reply-form" id="board-reply-form">
+              <input class="board-reply-input" id="board-reply-input" placeholder="댓글을 작성하세요...">
+              <button class="board-reply-btn" id="btn-board-reply">등록</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -2507,6 +2667,247 @@ function activateSolTab(lbl) {
   document.querySelectorAll('.sol-content').forEach((c) => c.classList.toggle('active', c.id === 'sol-' + lbl));
   renderMath($('sol-' + lbl));
 }
+
+/* ══════════════════════════════════════
+   게시판 시스템
+══════════════════════════════════════ */
+const BOARD_KEY = 'yp_board_posts';
+
+function loadBoardPosts() {
+  try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function saveBoardPosts(posts) {
+  localStorage.setItem(BOARD_KEY, JSON.stringify(posts));
+}
+
+let boardCurrentCat = 'all';
+let boardCurrentPostId = null;
+
+function renderBoardList() {
+  const posts = loadBoardPosts();
+  const filtered = boardCurrentCat === 'all' ? posts : posts.filter(p => p.cat === boardCurrentCat);
+  const list = $('board-list');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="board-empty">아직 게시글이 없어요.<br>첫 글을 작성해 보세요! ✨</div>';
+    return;
+  }
+
+  // 공지 먼저, 그 다음 최신순
+  const sorted = [...filtered].sort((a, b) => {
+    if (a.cat === 'notice' && b.cat !== 'notice') return -1;
+    if (a.cat !== 'notice' && b.cat === 'notice') return 1;
+    return b.ts - a.ts;
+  });
+
+  list.innerHTML = sorted.map(p => {
+    const date = new Date(p.ts);
+    const dateStr = (date.getMonth()+1) + '/' + date.getDate() + ' ' + String(date.getHours()).padStart(2,'0') + ':' + String(date.getMinutes()).padStart(2,'0');
+    const replies = (p.replies || []).length;
+    const answered = p.cat === 'qna' && replies > 0;
+    return `<div class="board-item" data-id="${p.id}">
+      <div class="board-item-top">
+        <span class="board-badge ${p.cat}">${p.cat === 'notice' ? '📢 공지' : '❓ 질문'}</span>
+        ${answered ? '<span class="board-badge answered">✅ 답변완료</span>' : ''}
+        <span class="board-item-title">${escHtml(p.title)}</span>
+      </div>
+      <div class="board-item-body">${escHtml(p.content)}</div>
+      <div class="board-item-meta">
+        <span>${p.author}</span>
+        <span>${dateStr}</span>
+        ${replies > 0 ? '<span>💬 ' + replies + '</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // 클릭 이벤트
+  list.querySelectorAll('.board-item').forEach(el => {
+    el.addEventListener('click', () => openBoardDetail(el.dataset.id));
+  });
+}
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function openBoardDetail(id) {
+  const posts = loadBoardPosts();
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+
+  boardCurrentPostId = id;
+  $('board-list-view').style.display = 'none';
+  $('board-form').classList.remove('show');
+  $('board-detail').classList.add('show');
+
+  const badge = $('board-detail-badge');
+  badge.className = 'board-badge ' + post.cat;
+  badge.textContent = post.cat === 'notice' ? '📢 공지사항' : '❓ 질문/답변';
+
+  $('board-detail-title').textContent = post.title;
+  const date = new Date(post.ts);
+  $('board-detail-meta').textContent = post.author + ' · ' + date.getFullYear() + '.' + (date.getMonth()+1) + '.' + date.getDate() + ' ' + String(date.getHours()).padStart(2,'0') + ':' + String(date.getMinutes()).padStart(2,'0');
+  $('board-detail-content').textContent = post.content;
+
+  // 삭제 버튼: 선생님만 보이게
+  const delBtn = $('btn-board-delete');
+  delBtn.style.display = state.teacher ? 'block' : 'none';
+
+  // 댓글 렌더
+  renderBoardReplies(post);
+
+  // 댓글 입력: 로그인한 사람만
+  $('board-reply-form').style.display = (state.student || state.teacher) ? 'flex' : 'none';
+}
+
+function renderBoardReplies(post) {
+  const replies = post.replies || [];
+  $('board-replies-title').textContent = '💬 댓글 ' + (replies.length > 0 ? '(' + replies.length + ')' : '');
+  const list = $('board-replies-list');
+
+  if (replies.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px;">아직 댓글이 없어요</div>';
+    return;
+  }
+
+  list.innerHTML = replies.map(r => {
+    const d = new Date(r.ts);
+    const ds = (d.getMonth()+1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    return `<div class="board-reply">
+      <div class="board-reply-meta">
+        <strong>${escHtml(r.author)}</strong>
+        ${r.isTeacher ? '<span class="board-reply-teacher">선생님</span>' : ''}
+        <span>${ds}</span>
+      </div>
+      <div class="board-reply-content">${escHtml(r.text)}</div>
+    </div>`;
+  }).join('');
+}
+
+// 카테고리 탭
+document.querySelectorAll('.board-cat').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.board-cat').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    boardCurrentCat = btn.dataset.cat;
+    renderBoardList();
+  });
+});
+
+// 글쓰기 버튼
+$('btn-board-write').addEventListener('click', () => {
+  if (!state.student && !state.teacher) {
+    alert('글쓰기를 하려면 먼저 회원가입 또는 선생님 로그인을 해주세요.');
+    return;
+  }
+  $('board-list-view').style.display = 'none';
+  $('board-detail').classList.remove('show');
+  $('board-form').classList.add('show');
+  $('board-form-title').value = '';
+  $('board-form-content').value = '';
+
+  // 선생님이 아니면 공지 옵션 비활성
+  const catSelect = $('board-form-cat');
+  const noticeOpt = catSelect.querySelector('option[value="notice"]');
+  if (state.teacher) {
+    noticeOpt.disabled = false;
+    catSelect.value = 'notice';
+  } else {
+    noticeOpt.disabled = true;
+    catSelect.value = 'qna';
+  }
+});
+
+// 글쓰기 취소
+$('btn-board-cancel').addEventListener('click', () => {
+  $('board-form').classList.remove('show');
+  $('board-list-view').style.display = 'block';
+});
+
+// 글 등록
+$('btn-board-submit').addEventListener('click', () => {
+  const cat = $('board-form-cat').value;
+  const title = $('board-form-title').value.trim();
+  const content = $('board-form-content').value.trim();
+
+  if (!title) { alert('제목을 입력해주세요.'); return; }
+  if (!content) { alert('내용을 입력해주세요.'); return; }
+
+  if (cat === 'notice' && !state.teacher) {
+    alert('공지사항은 선생님만 작성할 수 있습니다.');
+    return;
+  }
+
+  const author = state.teacher ? state.teacher.name + ' 선생님' : (state.student ? state.student.name : '익명');
+  const posts = loadBoardPosts();
+  const newPost = {
+    id: 'p' + Date.now() + Math.random().toString(36).slice(2,6),
+    cat, title, content, author,
+    isTeacher: !!state.teacher,
+    ts: Date.now(),
+    replies: []
+  };
+  posts.push(newPost);
+  saveBoardPosts(posts);
+
+  $('board-form').classList.remove('show');
+  $('board-list-view').style.display = 'block';
+  renderBoardList();
+});
+
+// 목록으로 돌아가기
+$('btn-board-back').addEventListener('click', () => {
+  $('board-detail').classList.remove('show');
+  $('board-list-view').style.display = 'block';
+  boardCurrentPostId = null;
+  renderBoardList();
+});
+
+// 댓글 등록
+$('btn-board-reply').addEventListener('click', () => {
+  const text = $('board-reply-input').value.trim();
+  if (!text) return;
+
+  const posts = loadBoardPosts();
+  const post = posts.find(p => p.id === boardCurrentPostId);
+  if (!post) return;
+
+  const author = state.teacher ? state.teacher.name + ' 선생님' : (state.student ? state.student.name : '익명');
+  if (!post.replies) post.replies = [];
+  post.replies.push({
+    author,
+    isTeacher: !!state.teacher,
+    text,
+    ts: Date.now()
+  });
+  saveBoardPosts(posts);
+
+  $('board-reply-input').value = '';
+  renderBoardReplies(post);
+});
+
+$('board-reply-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') $('btn-board-reply').click();
+});
+
+// 글 삭제 (선생님 전용)
+$('btn-board-delete').addEventListener('click', () => {
+  if (!state.teacher) return;
+  if (!confirm('이 글을 삭제하시겠습니까?')) return;
+  let posts = loadBoardPosts();
+  posts = posts.filter(p => p.id !== boardCurrentPostId);
+  saveBoardPosts(posts);
+  $('board-detail').classList.remove('show');
+  $('board-list-view').style.display = 'block';
+  boardCurrentPostId = null;
+  renderBoardList();
+});
+
+// 초기 렌더
+renderBoardList();
 
 </script>
 </body>
