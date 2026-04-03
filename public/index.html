@@ -907,6 +907,219 @@
     .coming-badge {
       display: inline-block;
       background: rgba(245,158,11,0.1);
+
+    /* ══════════════════════════════
+       진도 관리 탭
+    ══════════════════════════════ */
+    .progress-wrap { padding: 16px; }
+    .track-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .track-tab {
+      flex: 1; padding: 10px 0; text-align: center;
+      background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 14px; font-weight: 700;
+      color: var(--text-sub); cursor: pointer; transition: all .2s;
+    }
+    .track-tab.active {
+      background: rgba(16,185,129,0.1); border-color: var(--accent);
+      color: var(--accent);
+    }
+    .track-tab .track-emoji { font-size: 16px; margin-right: 4px; }
+    .progress-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+    }
+    .progress-header h3 { font-size: 17px; font-weight: 800; color: var(--text); margin: 0; }
+    .progress-overall {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+    }
+    .progress-overall-top {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .progress-overall-label { font-size: 13px; color: var(--text-sub); }
+    .progress-overall-pct { font-size: 22px; font-weight: 900; color: var(--accent); }
+    .progress-bar-bg {
+      width: 100%; height: 10px; background: var(--surface2);
+      border-radius: 5px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: 5px; transition: width .4s ease;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+    .grade-select {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 6px 12px; border-radius: var(--radius-xs);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .unit-list { display: flex; flex-direction: column; gap: 10px; }
+    .unit-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; transition: all .2s;
+    }
+    .unit-card-header {
+      display: flex; align-items: center; padding: 14px 16px;
+      cursor: pointer; gap: 12px;
+    }
+    .unit-card-header:hover { background: rgba(255,255,255,0.02); }
+    .unit-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(16,185,129,0.12); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
+    }
+    .unit-info { flex: 1; min-width: 0; }
+    .unit-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .unit-sub { font-size: 11px; color: var(--text-dim); }
+    .unit-pct { font-size: 14px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
+    .unit-pct.low { color: var(--warn); }
+    .unit-pct.zero { color: var(--text-dim); }
+    .unit-mini-bar {
+      width: 48px; height: 4px; background: var(--surface2);
+      border-radius: 2px; overflow: hidden; flex-shrink: 0;
+    }
+    .unit-mini-fill {
+      height: 100%; border-radius: 2px;
+      background: var(--accent); transition: width .3s;
+    }
+    .unit-chapters {
+      display: none; padding: 0 16px 14px; border-top: 1px solid var(--border);
+    }
+    .unit-card.open .unit-chapters { display: block; padding-top: 12px; }
+    .unit-card.open .unit-arrow { transform: rotate(180deg); }
+    .unit-arrow {
+      color: var(--text-dim); font-size: 12px; transition: transform .2s; flex-shrink: 0;
+    }
+    .chapter-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .chapter-item:last-child { border-bottom: none; }
+    .chapter-check {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border-light); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; flex-shrink: 0; background: transparent;
+      padding: 0;
+    }
+    .chapter-check.done {
+      background: var(--accent); border-color: var(--accent);
+    }
+    .chapter-check.done::after {
+      content: '✓'; color: #fff; font-size: 11px; font-weight: 800;
+    }
+    .chapter-label {
+      flex: 1; font-size: 13px; color: var(--text-sub); cursor: pointer;
+    }
+    .chapter-check.done + .chapter-label { color: var(--text); text-decoration: line-through; opacity: 0.6; }
+    .progress-stats {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px; text-align: center;
+    }
+    .stat-value { font-size: 20px; font-weight: 900; color: var(--text); }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ══════════════════════════════
+       평가 탭
+    ══════════════════════════════ */
+    .eval-wrap { padding: 16px; }
+    .eval-intro {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+      text-align: center;
+    }
+    .eval-intro h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+    .eval-intro p { font-size: 13px; color: var(--text-sub); line-height: 1.6; }
+    .eval-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .eval-step {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; cursor: pointer;
+      transition: all .2s;
+    }
+    .eval-step:hover { border-color: var(--accent); }
+    .eval-step.locked { opacity: 0.5; cursor: not-allowed; }
+    .eval-step.completed { border-color: var(--accent); background: rgba(16,185,129,0.05); }
+    .eval-step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; flex-shrink: 0;
+      background: var(--surface2); color: var(--text-dim); border: 2px solid var(--border);
+    }
+    .eval-step.completed .eval-step-num {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .eval-step.current .eval-step-num {
+      background: rgba(16,185,129,0.15); color: var(--accent); border-color: var(--accent);
+    }
+    .eval-step-info { flex: 1; }
+    .eval-step-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .eval-step-desc { font-size: 11px; color: var(--text-sub); }
+    .eval-step-badge {
+      font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 700;
+    }
+    .eval-step-badge.done { background: rgba(16,185,129,0.12); color: var(--accent); }
+    .eval-step-badge.next { background: rgba(59,130,246,0.12); color: var(--sol-a); }
+    .eval-step-badge.lock { background: rgba(74,94,122,0.2); color: var(--text-dim); }
+    .eval-unit-select {
+      width: 100%; padding: 10px 14px; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text);
+      border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
+      margin-bottom: 14px; cursor: pointer;
+    }
+    .eval-result {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; text-align: center;
+    }
+    .eval-result h4 { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .eval-score { font-size: 40px; font-weight: 900; color: var(--accent); }
+    .eval-msg { font-size: 13px; color: var(--text-sub); margin-top: 6px; }
+
+    /* ══════════════════════════════
+       문제뱅크 탭
+    ══════════════════════════════ */
+    .bank-wrap { padding: 16px; }
+    .bank-filters {
+      display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .bank-filter {
+      padding: 7px 14px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+      color: var(--text-sub); cursor: pointer; transition: all .2s;
+    }
+    .bank-filter.active { background: rgba(16,185,129,0.12); border-color: var(--accent); color: var(--accent); }
+    .bank-search {
+      width: 100%; padding: 10px 14px; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text);
+      border-radius: var(--radius-sm); font-size: 14px; margin-bottom: 14px;
+    }
+    .bank-search::placeholder { color: var(--text-dim); }
+    .bank-list { display: flex; flex-direction: column; gap: 10px; }
+    .bank-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; transition: all .2s;
+    }
+    .bank-item:hover { border-color: var(--accent); }
+    .bank-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .bank-item-tags { display: flex; gap: 6px; }
+    .bank-tag {
+      font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700;
+    }
+    .bank-tag.grade { background: rgba(59,130,246,0.12); color: var(--sol-a); }
+    .bank-tag.unit { background: rgba(168,85,247,0.12); color: var(--sol-b); }
+    .bank-tag.diff-easy { background: rgba(16,185,129,0.12); color: var(--accent); }
+    .bank-tag.diff-mid { background: rgba(245,158,11,0.12); color: var(--warn); }
+    .bank-tag.diff-hard { background: rgba(244,63,94,0.12); color: var(--danger); }
+    .bank-item-q { font-size: 14px; color: var(--text); line-height: 1.6; }
+    .bank-item-meta { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+    .bank-empty {
+      text-align: center; padding: 60px 24px; color: var(--text-dim); font-size: 14px;
+    }
+
       border: 1px solid rgba(245,158,11,0.3);
       color: var(--warn);
       border-radius: 20px;
@@ -1113,31 +1326,132 @@
 
     <!-- ── 탭 2: 진도 관리 ── -->
     <div class="tab-panel" id="panel-progress">
-      <div class="coming-soon">
-        <div class="cs-icon">📊</div>
-        <h3>진도 이중 트랙 관리</h3>
-        <p>학교 정규 진도와 학원 선행 진도를<br>각각 관리하는 기능이에요</p>
-        <span class="coming-badge">Phase 2 개발 중</span>
+      <div class="progress-wrap">
+        <!-- 트랙 전환 -->
+        <div class="track-tabs">
+          <div class="track-tab active" data-track="school">
+            <span class="track-emoji">🏫</span>학교 정규
+          </div>
+          <div class="track-tab" data-track="academy">
+            <span class="track-emoji">📖</span>학원 선행
+          </div>
+        </div>
+
+        <!-- 학년 선택 + 전체 진도 -->
+        <div class="progress-header">
+          <h3 id="progress-title">학교 정규 진도</h3>
+          <select class="grade-select" id="grade-select">
+            <option value="m1">중1</option>
+            <option value="m2">중2</option>
+            <option value="m3">중3</option>
+            <option value="h1">고1</option>
+          </select>
+        </div>
+
+        <!-- 전체 진도율 -->
+        <div class="progress-overall">
+          <div class="progress-overall-top">
+            <span class="progress-overall-label">전체 진도율</span>
+            <span class="progress-overall-pct" id="overall-pct">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="overall-bar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- 통계 -->
+        <div class="progress-stats">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-done">0</div>
+            <div class="stat-label">완료한 단원</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">전체 단원</div>
+          </div>
+        </div>
+
+        <!-- 단원 리스트 -->
+        <div class="unit-list" id="unit-list"></div>
       </div>
     </div>
 
     <!-- ── 탭 3: 완전학습 ── -->
     <div class="tab-panel" id="panel-evaluate">
-      <div class="coming-soon">
-        <div class="cs-icon">🏆</div>
-        <h3>완전학습 평가 시스템</h3>
-        <p>개념확인 → 기본계산 → 응용풀이 →<br>실생활연계 → 심화종합 5단계 평가</p>
-        <span class="coming-badge">Phase 2 개발 중</span>
+      <div class="eval-wrap">
+        <div class="eval-intro">
+          <h3>🏆 완전학습 평가</h3>
+          <p>5단계를 순서대로 통과하면 해당 단원을 완전히 마스터!</p>
+        </div>
+
+        <select class="eval-unit-select" id="eval-unit-select">
+          <option value="">단원을 선택하세요</option>
+        </select>
+
+        <div class="eval-steps" id="eval-steps">
+          <div class="eval-step current" data-step="1">
+            <div class="eval-step-num">1</div>
+            <div class="eval-step-info">
+              <div class="eval-step-name">개념 확인</div>
+              <div class="eval-step-desc">핵심 개념을 이해했는지 확인해요</div>
+            </div>
+            <span class="eval-step-badge next">도전</span>
+          </div>
+          <div class="eval-step locked" data-step="2">
+            <div class="eval-step-num">2</div>
+            <div class="eval-step-info">
+              <div class="eval-step-name">기본 계산</div>
+              <div class="eval-step-desc">기본 연산 능력을 점검해요</div>
+            </div>
+            <span class="eval-step-badge lock">잠김</span>
+          </div>
+          <div class="eval-step locked" data-step="3">
+            <div class="eval-step-num">3</div>
+            <div class="eval-step-info">
+              <div class="eval-step-name">응용 풀이</div>
+              <div class="eval-step-desc">다양한 유형의 문제를 풀어요</div>
+            </div>
+            <span class="eval-step-badge lock">잠김</span>
+          </div>
+          <div class="eval-step locked" data-step="4">
+            <div class="eval-step-num">4</div>
+            <div class="eval-step-info">
+              <div class="eval-step-name">실생활 연계</div>
+              <div class="eval-step-desc">실제 생활에서 수학이 어떻게 쓰이는지</div>
+            </div>
+            <span class="eval-step-badge lock">잠김</span>
+          </div>
+          <div class="eval-step locked" data-step="5">
+            <div class="eval-step-num">5</div>
+            <div class="eval-step-info">
+              <div class="eval-step-name">심화 종합</div>
+              <div class="eval-step-desc">고난도 종합 문제로 마무리!</div>
+            </div>
+            <span class="eval-step-badge lock">잠김</span>
+          </div>
+        </div>
+
+        <div class="eval-result" id="eval-result" style="display:none">
+          <h4 id="eval-result-title">평가 결과</h4>
+          <div class="eval-score" id="eval-score">-</div>
+          <div class="eval-msg" id="eval-msg">단원을 선택하고 평가를 시작해보세요</div>
+        </div>
       </div>
     </div>
 
     <!-- ── 탭 4: 문제뱅크 ── -->
     <div class="tab-panel" id="panel-bank">
-      <div class="coming-soon">
-        <div class="cs-icon">📚</div>
-        <h3>공유 문제뱅크</h3>
-        <p>오답 빈출 문제를 모아 놓은 은행이에요<br>학년·단원·난이도로 필터해서 골라요</p>
-        <span class="coming-badge">Phase 2 개발 중</span>
+      <div class="bank-wrap">
+        <input class="bank-search" type="text" placeholder="문제 키워드 검색..." id="bank-search" />
+        <div class="bank-filters" id="bank-filters">
+          <div class="bank-filter active" data-diff="all">전체</div>
+          <div class="bank-filter" data-diff="easy">쉬움</div>
+          <div class="bank-filter" data-diff="mid">보통</div>
+          <div class="bank-filter" data-diff="hard">어려움</div>
+        </div>
+        <div class="bank-list" id="bank-list">
+          <div class="bank-empty">풀이 탭에서 문제를 풀면<br>자동으로 문제뱅크에 저장돼요!</div>
+        </div>
       </div>
     </div>
 
@@ -1413,6 +1727,282 @@ document.querySelectorAll('.nav-btn').forEach((btn) => {
     $('tab-content').scrollTop = 0;
   });
 });
+
+/* ══════════════════════════════════════
+   진도 관리 시스템
+══════════════════════════════════════ */
+const CURRICULUM = {
+  school: {
+    m1: { label: '중1', units: [
+      { name: '자연수의 성질', chapters: ['소인수분해','최대공약수와 최소공배수','정수와 유리수'] },
+      { name: '일차방정식', chapters: ['문자와 식','일차방정식 풀이','일차방정식 활용'] },
+      { name: '좌표와 그래프', chapters: ['좌표평면','정비례와 반비례','그래프 해석'] },
+      { name: '기본 도형', chapters: ['점, 선, 면','각','위치 관계'] },
+      { name: '평면도형', chapters: ['다각형','원과 부채꼴','도형의 넓이'] },
+      { name: '입체도형', chapters: ['다면체','회전체','겉넓이와 부피'] },
+      { name: '통계', chapters: ['자료 정리','도수분포표','그래프와 해석'] },
+    ]},
+    m2: { label: '중2', units: [
+      { name: '수와 식', chapters: ['유리수와 순환소수','식의 계산','단항식과 다항식'] },
+      { name: '부등식과 연립방정식', chapters: ['일차부등식','연립방정식 풀이','연립방정식 활용'] },
+      { name: '일차함수', chapters: ['함수와 그래프','일차함수 식','일차함수와 일차방정식'] },
+      { name: '삼각형의 성질', chapters: ['이등변삼각형','삼각형의 외심·내심','닮음'] },
+      { name: '사각형의 성질', chapters: ['평행사변형','여러 사각형','도형의 닮음'] },
+      { name: '확률', chapters: ['경우의 수','확률의 뜻','확률의 계산'] },
+    ]},
+    m3: { label: '중3', units: [
+      { name: '제곱근과 실수', chapters: ['제곱근','근호를 포함한 식','실수'] },
+      { name: '다항식의 곱셈', chapters: ['곱셈공식','인수분해'] },
+      { name: '이차방정식', chapters: ['이차방정식 풀이','근의 공식','이차방정식 활용'] },
+      { name: '이차함수', chapters: ['이차함수 그래프','이차함수 식','최댓값·최솟값'] },
+      { name: '삼각비', chapters: ['삼각비의 뜻','삼각비의 활용'] },
+      { name: '원의 성질', chapters: ['원과 직선','원주각','원의 성질 활용'] },
+      { name: '통계', chapters: ['대푯값','산포도','상관관계'] },
+    ]},
+    h1: { label: '고1', units: [
+      { name: '다항식', chapters: ['다항식 연산','나머지정리','인수분해'] },
+      { name: '방정식과 부등식', chapters: ['복소수','이차방정식','이차함수와 이차방정식','여러 부등식'] },
+      { name: '도형의 방정식', chapters: ['평면좌표','직선의 방정식','원의 방정식','도형의 이동'] },
+      { name: '집합과 명제', chapters: ['집합','명제'] },
+      { name: '함수', chapters: ['함수','유리·무리함수'] },
+      { name: '경우의 수', chapters: ['순열','조합'] },
+    ]},
+  },
+  academy: {
+    m1: { label: '중1 선행', units: [
+      { name: '중2 수와 식 선행', chapters: ['유리수와 순환소수','식의 계산'] },
+      { name: '중2 방정식 선행', chapters: ['일차부등식','연립방정식'] },
+      { name: '중2 함수 선행', chapters: ['일차함수','그래프 해석'] },
+    ]},
+    m2: { label: '중2 선행', units: [
+      { name: '중3 제곱근 선행', chapters: ['제곱근','실수'] },
+      { name: '중3 인수분해 선행', chapters: ['곱셈공식','인수분해'] },
+      { name: '중3 이차방정식 선행', chapters: ['이차방정식 풀이','근의 공식'] },
+    ]},
+    m3: { label: '중3 선행', units: [
+      { name: '고1 다항식 선행', chapters: ['다항식 연산','인수분해'] },
+      { name: '고1 방정식 선행', chapters: ['복소수','이차방정식'] },
+      { name: '고1 함수 선행', chapters: ['함수','유리·무리함수'] },
+    ]},
+    h1: { label: '고1 선행', units: [
+      { name: '수학I 지수·로그', chapters: ['지수','로그','지수·로그 함수'] },
+      { name: '수학I 삼각함수', chapters: ['삼각함수','삼각함수 그래프','삼각함수 활용'] },
+      { name: '수학I 수열', chapters: ['등차수열','등비수열','수열의 합'] },
+    ]},
+  }
+};
+
+let currentTrack = 'school';
+let currentGrade = 'm1';
+
+function getProgressKey(track, grade, unitIdx, chapIdx) {
+  return `prog_${track}_${grade}_${unitIdx}_${chapIdx}`;
+}
+function isChapterDone(track, grade, unitIdx, chapIdx) {
+  return localStorage.getItem(getProgressKey(track, grade, unitIdx, chapIdx)) === '1';
+}
+function toggleChapter(track, grade, unitIdx, chapIdx) {
+  const key = getProgressKey(track, grade, unitIdx, chapIdx);
+  localStorage.setItem(key, localStorage.getItem(key) === '1' ? '0' : '1');
+  renderProgress();
+}
+
+function renderProgress() {
+  const data = CURRICULUM[currentTrack]?.[currentGrade];
+  if (!data) return;
+
+  const list = $('unit-list');
+  let totalChapters = 0, doneChapters = 0;
+
+  let html = '';
+  data.units.forEach((unit, ui) => {
+    let unitDone = 0;
+    unit.chapters.forEach((ch, ci) => {
+      totalChapters++;
+      if (isChapterDone(currentTrack, currentGrade, ui, ci)) { doneChapters++; unitDone++; }
+    });
+    const unitPct = Math.round((unitDone / unit.chapters.length) * 100);
+    const pctClass = unitPct === 0 ? 'zero' : unitPct < 50 ? 'low' : '';
+
+    html += `<div class="unit-card" data-unit="${ui}">
+      <div class="unit-card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="unit-num">${ui + 1}</div>
+        <div class="unit-info">
+          <div class="unit-name">${unit.name}</div>
+          <div class="unit-sub">${unitDone}/${unit.chapters.length} 완료</div>
+        </div>
+        <div class="unit-mini-bar"><div class="unit-mini-fill" style="width:${unitPct}%"></div></div>
+        <span class="unit-pct ${pctClass}">${unitPct}%</span>
+        <span class="unit-arrow">▼</span>
+      </div>
+      <div class="unit-chapters">
+        ${unit.chapters.map((ch, ci) => {
+          const done = isChapterDone(currentTrack, currentGrade, ui, ci);
+          return `<div class="chapter-item">
+            <button class="chapter-check ${done ? 'done' : ''}" onclick="toggleChapter('${currentTrack}','${currentGrade}',${ui},${ci})"></button>
+            <span class="chapter-label" onclick="toggleChapter('${currentTrack}','${currentGrade}',${ui},${ci})">${ch}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+
+  const overallPct = totalChapters ? Math.round((doneChapters / totalChapters) * 100) : 0;
+  $('overall-pct').textContent = overallPct + '%';
+  $('overall-bar').style.width = overallPct + '%';
+  $('stat-done').textContent = doneChapters;
+  $('stat-total').textContent = totalChapters;
+}
+
+// 트랙 전환
+document.querySelectorAll('.track-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.track-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentTrack = tab.dataset.track;
+    $('progress-title').textContent = currentTrack === 'school' ? '학교 정규 진도' : '학원 선행 진도';
+    renderProgress();
+  });
+});
+
+// 학년 선택
+$('grade-select').addEventListener('change', (e) => {
+  currentGrade = e.target.value;
+  renderProgress();
+});
+
+// 초기 렌더링
+renderProgress();
+
+/* ══════════════════════════════════════
+   평가 시스템
+══════════════════════════════════════ */
+function populateEvalUnits() {
+  const sel = $('eval-unit-select');
+  const data = CURRICULUM.school[currentGrade];
+  if (!data) return;
+  sel.innerHTML = '<option value="">단원을 선택하세요</option>';
+  data.units.forEach((u, i) => {
+    sel.innerHTML += `<option value="${i}">${u.name}</option>`;
+  });
+}
+populateEvalUnits();
+$('grade-select').addEventListener('change', populateEvalUnits);
+
+$('eval-unit-select').addEventListener('change', (e) => {
+  const unitIdx = e.target.value;
+  if (unitIdx === '') return;
+  renderEvalSteps(unitIdx);
+});
+
+function renderEvalSteps(unitIdx) {
+  const key = `eval_${currentGrade}_${unitIdx}`;
+  const passed = parseInt(localStorage.getItem(key) || '0', 10);
+  const steps = document.querySelectorAll('.eval-step');
+  steps.forEach((step, i) => {
+    step.classList.remove('completed', 'current', 'locked');
+    const badge = step.querySelector('.eval-step-badge');
+    if (i < passed) {
+      step.classList.add('completed');
+      badge.className = 'eval-step-badge done';
+      badge.textContent = '통과';
+    } else if (i === passed) {
+      step.classList.add('current');
+      badge.className = 'eval-step-badge next';
+      badge.textContent = '도전';
+    } else {
+      step.classList.add('locked');
+      badge.className = 'eval-step-badge lock';
+      badge.textContent = '잠김';
+    }
+  });
+
+  // 클릭 이벤트
+  steps.forEach((step, i) => {
+    step.onclick = () => {
+      if (i !== passed) return;
+      const names = ['개념 확인','기본 계산','응용 풀이','실생활 연계','심화 종합'];
+      if (confirm(`"${names[i]}" 단계를 통과 처리할까요?\n(실제 퀴즈는 추후 업데이트 예정)`)) {
+        localStorage.setItem(key, String(passed + 1));
+        renderEvalSteps(unitIdx);
+        if (passed + 1 >= 5) {
+          $('eval-result').style.display = 'block';
+          $('eval-score').textContent = '🎉';
+          $('eval-msg').textContent = '완전학습 달성! 이 단원을 마스터했어요!';
+        }
+      }
+    };
+  });
+
+  if (passed >= 5) {
+    $('eval-result').style.display = 'block';
+    $('eval-score').textContent = '🎉';
+    $('eval-msg').textContent = '완전학습 달성! 이 단원을 마스터했어요!';
+  } else {
+    $('eval-result').style.display = 'none';
+  }
+}
+
+/* ══════════════════════════════════════
+   문제뱅크
+══════════════════════════════════════ */
+function getSavedProblems() {
+  try { return JSON.parse(localStorage.getItem('yp_bank') || '[]'); } catch { return []; }
+}
+
+function renderBank(filter = 'all', keyword = '') {
+  const problems = getSavedProblems();
+  const list = $('bank-list');
+
+  let filtered = problems;
+  if (filter !== 'all') filtered = filtered.filter(p => p.diff === filter);
+  if (keyword) filtered = filtered.filter(p =>
+    (p.question || '').includes(keyword) || (p.unit || '').includes(keyword)
+  );
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="bank-empty">${
+      problems.length === 0
+        ? '풀이 탭에서 문제를 풀면<br>자동으로 문제뱅크에 저장돼요!'
+        : '검색 결과가 없어요'
+    }</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(p => `
+    <div class="bank-item">
+      <div class="bank-item-top">
+        <div class="bank-item-tags">
+          <span class="bank-tag grade">${p.grade || '중1'}</span>
+          <span class="bank-tag unit">${p.unit || '미분류'}</span>
+          <span class="bank-tag diff-${p.diff || 'mid'}">${
+            {easy:'쉬움',mid:'보통',hard:'어려움'}[p.diff] || '보통'
+          }</span>
+        </div>
+      </div>
+      <div class="bank-item-q">${p.question || '문제 내용'}</div>
+      <div class="bank-item-meta">${p.date || ''} · ${p.correct ? '정답' : '오답'}</div>
+    </div>
+  `).join('');
+}
+
+let bankFilter = 'all';
+document.querySelectorAll('.bank-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.bank-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    bankFilter = btn.dataset.diff;
+    renderBank(bankFilter, $('bank-search').value);
+  });
+});
+
+$('bank-search').addEventListener('input', (e) => {
+  renderBank(bankFilter, e.target.value);
+});
+
+renderBank();
 
 /* ══════════════════════════════════════
    이미지 업로드
@@ -1781,53 +2371,4 @@ function activateSolTab(lbl) {
   renderMath($('sol-' + lbl));
 }
 
-/* ══════════════════════════════════════
-   자가평가
-══════════════════════════════════════ */
-document.querySelectorAll('.emoji-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.emoji-btn').forEach((b) => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    state.selfLevel = parseInt(btn.dataset.level);
-  });
-});
-
-/* ══════════════════════════════════════
-   자동 저장 (백그라운드)
-══════════════════════════════════════ */
-async function autoSave(result, problemText) {
-  const toast = $('save-toast');
-  try {
-    await fetch('/api/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        student: state.student,
-        problem: problemText,
-        image: state.uploadedImage,
-        result,
-        selfLevel: state.selfLevel,
-        elapsedSec: Math.round((Date.now() - state.startTime) / 1000),
-      }),
-    });
-    toast.textContent = '저장됨 ✓';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  } catch {
-    toast.textContent = '저장 오류 ⚠';
-    toast.style.background = 'var(--danger)';
-    toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-      toast.style.background = '';
-    }, 2500);
-  }
-}
-
-// payment-system.js에서 접근할 수 있도록 전역 노출
-window.state = state;
-window.applyHeaderState = applyHeaderState;
-</script>
-  <script src="/payment-system.js"></script>
-</body>
-</html>
+/* ══════════════════════════
