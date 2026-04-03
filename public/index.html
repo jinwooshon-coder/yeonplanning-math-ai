@@ -1230,6 +1230,19 @@
       font-size: 11px; padding: 4px 10px; border-radius: 8px; background: rgba(244,63,94,0.1);
       color: var(--danger); border: 1px solid rgba(244,63,94,0.2); cursor: pointer; margin-left: auto;
     }
+    .board-badge.secret { background: rgba(168,85,247,0.12); color: #a855f7; }
+    .board-secret-check {
+      display: flex; align-items: center; gap: 8px; margin-top: 10px; cursor: pointer; user-select: none;
+    }
+    .board-secret-check input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: #a855f7; cursor: pointer;
+    }
+    .board-secret-check label { font-size: 13px; color: var(--text-sub); cursor: pointer; }
+    .board-item.secret-item { opacity: 0.6; }
+    .board-item.secret-item .board-item-title { color: var(--text-dim); }
+    .board-lock-msg {
+      text-align: center; padding: 40px 24px; color: var(--text-dim); font-size: 14px;
+    }
 
     /* KaTeX 오버라이드 */
     .katex { color: var(--text); font-size: 1em; }
@@ -1621,6 +1634,10 @@
           <div class="board-form-group">
             <label class="board-form-label">내용</label>
             <textarea class="board-form-textarea" id="board-form-content" placeholder="내용을 자유롭게 작성하세요"></textarea>
+          </div>
+          <div class="board-secret-check" id="board-secret-wrap">
+            <input type="checkbox" id="board-form-secret">
+            <label for="board-form-secret">🔒 비밀글 (선생님만 볼 수 있어요)</label>
           </div>
           <div class="board-form-actions">
             <button class="board-btn-cancel" id="btn-board-cancel">취소</button>
@@ -2684,6 +2701,18 @@ function saveBoardPosts(posts) {
 let boardCurrentCat = 'all';
 let boardCurrentPostId = null;
 
+function getCurrentAuthorId() {
+  if (state.teacher) return 'teacher:' + state.teacher.name;
+  if (state.student) return 'student:' + state.student.name + ':' + state.student.code;
+  return '';
+}
+
+function canViewSecret(post) {
+  if (!post.isSecret) return true;
+  if (state.teacher) return true;
+  return post.authorId === getCurrentAuthorId();
+}
+
 function renderBoardList() {
   const posts = loadBoardPosts();
   const filtered = boardCurrentCat === 'all' ? posts : posts.filter(p => p.cat === boardCurrentCat);
@@ -2706,15 +2735,20 @@ function renderBoardList() {
     const dateStr = (date.getMonth()+1) + '/' + date.getDate() + ' ' + String(date.getHours()).padStart(2,'0') + ':' + String(date.getMinutes()).padStart(2,'0');
     const replies = (p.replies || []).length;
     const answered = p.cat === 'qna' && replies > 0;
-    return `<div class="board-item" data-id="${p.id}">
+    const viewable = canViewSecret(p);
+    const secretClass = p.isSecret && !viewable ? ' secret-item' : '';
+    const displayTitle = p.isSecret && !viewable ? '🔒 비밀글입니다' : escHtml(p.title);
+    const displayBody = p.isSecret && !viewable ? '이 글은 작성자와 선생님만 볼 수 있어요.' : escHtml(p.content);
+    return `<div class="board-item${secretClass}" data-id="${p.id}" data-viewable="${viewable}">
       <div class="board-item-top">
         <span class="board-badge ${p.cat}">${p.cat === 'notice' ? '📢 공지' : '❓ 질문'}</span>
+        ${p.isSecret ? '<span class="board-badge secret">🔒 비밀</span>' : ''}
         ${answered ? '<span class="board-badge answered">✅ 답변완료</span>' : ''}
-        <span class="board-item-title">${escHtml(p.title)}</span>
+        <span class="board-item-title">${displayTitle}</span>
       </div>
-      <div class="board-item-body">${escHtml(p.content)}</div>
+      <div class="board-item-body">${displayBody}</div>
       <div class="board-item-meta">
-        <span>${p.author}</span>
+        <span>${p.isSecret && !viewable ? '익명' : p.author}</span>
         <span>${dateStr}</span>
         ${replies > 0 ? '<span>💬 ' + replies + '</span>' : ''}
       </div>
@@ -2723,7 +2757,13 @@ function renderBoardList() {
 
   // 클릭 이벤트
   list.querySelectorAll('.board-item').forEach(el => {
-    el.addEventListener('click', () => openBoardDetail(el.dataset.id));
+    el.addEventListener('click', () => {
+      if (el.dataset.viewable === 'false') {
+        alert('🔒 비밀글은 작성자와 선생님만 볼 수 있어요.');
+        return;
+      }
+      openBoardDetail(el.dataset.id);
+    });
   });
 }
 
@@ -2746,6 +2786,17 @@ function openBoardDetail(id) {
   const badge = $('board-detail-badge');
   badge.className = 'board-badge ' + post.cat;
   badge.textContent = post.cat === 'notice' ? '📢 공지사항' : '❓ 질문/답변';
+
+  // 비밀글 배지 (상세보기 상단에 추가)
+  let secretBadgeEl = document.getElementById('board-detail-secret-badge');
+  if (!secretBadgeEl) {
+    secretBadgeEl = document.createElement('span');
+    secretBadgeEl.id = 'board-detail-secret-badge';
+    secretBadgeEl.className = 'board-badge secret';
+    secretBadgeEl.textContent = '🔒 비밀글';
+    badge.parentNode.insertBefore(secretBadgeEl, badge.nextSibling);
+  }
+  secretBadgeEl.style.display = post.isSecret ? 'inline-block' : 'none';
 
   $('board-detail-title').textContent = post.title;
   const date = new Date(post.ts);
@@ -2808,6 +2859,7 @@ $('btn-board-write').addEventListener('click', () => {
   $('board-form').classList.add('show');
   $('board-form-title').value = '';
   $('board-form-content').value = '';
+  $('board-form-secret').checked = false;
 
   // 선생님이 아니면 공지 옵션 비활성
   const catSelect = $('board-form-cat');
@@ -2815,9 +2867,12 @@ $('btn-board-write').addEventListener('click', () => {
   if (state.teacher) {
     noticeOpt.disabled = false;
     catSelect.value = 'notice';
+    // 선생님은 비밀글 옵션 숨기기 (공지는 비밀글 불필요)
+    $('board-secret-wrap').style.display = 'none';
   } else {
     noticeOpt.disabled = true;
     catSelect.value = 'qna';
+    $('board-secret-wrap').style.display = 'flex';
   }
 });
 
@@ -2842,11 +2897,14 @@ $('btn-board-submit').addEventListener('click', () => {
   }
 
   const author = state.teacher ? state.teacher.name + ' 선생님' : (state.student ? state.student.name : '익명');
+  const isSecret = $('board-form-secret').checked;
+  const authorId = state.teacher ? 'teacher:' + state.teacher.name : (state.student ? 'student:' + state.student.name + ':' + state.student.code : '');
   const posts = loadBoardPosts();
   const newPost = {
     id: 'p' + Date.now() + Math.random().toString(36).slice(2,6),
-    cat, title, content, author,
+    cat, title, content, author, authorId,
     isTeacher: !!state.teacher,
+    isSecret: isSecret,
     ts: Date.now(),
     replies: []
   };
