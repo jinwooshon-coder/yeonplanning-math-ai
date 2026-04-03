@@ -26,30 +26,36 @@ const CONFIG = {
 
 /* ─────────────── 무료 체험 상태 ─────────────── */
 const Trial = {
-  /** 앱 첫 사용일 (localStorage) */
+  /** 오늘 날짜 (index.html과 동일 형식) */
+  _today() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  },
+
+  /** 앱 첫 사용일 (index.html과 동일 키: firstVisitDate) */
   getFirstDate() {
-    let d = localStorage.getItem('yp_first_date');
-    if (!d) { d = new Date().toISOString().slice(0, 10); localStorage.setItem('yp_first_date', d); }
+    let d = localStorage.getItem('firstVisitDate');
+    if (!d) { d = this._today(); localStorage.setItem('firstVisitDate', d); }
     return new Date(d);
   },
 
   /** 현재 주차 (1~4+) */
   getWeek() {
-    const diff = Math.floor((Date.now() - this.getFirstDate()) / 86400000);
+    const diff = Math.floor((new Date(this._today()) - this.getFirstDate()) / 86400000);
     return Math.min(Math.floor(diff / 7) + 1, 4);
   },
 
-  /** 오늘 사용한 횟수 */
+  /** 오늘 사용한 횟수 (index.html과 동일 키: dailyUsage:YYYY-MM-DD) */
   getUsedToday() {
-    const key = `yp_used_${new Date().toISOString().slice(0,10)}`;
+    const key = 'dailyUsage:' + this._today();
     return parseInt(localStorage.getItem(key) || '0', 10);
   },
 
   /** 오늘 한 번 사용 처리 */
   use() {
-    const key = `yp_used_${new Date().toISOString().slice(0,10)}`;
+    const key = 'dailyUsage:' + this._today();
     const n = this.getUsedToday() + 1;
-    localStorage.setItem(key, n);
+    localStorage.setItem(key, String(n));
     return n;
   },
 
@@ -250,29 +256,36 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-/* ─────────────── 배지 주입 ─────────────── */
-function injectBadge() {
-  if (document.getElementById('yp-badge')) return;
-  // 헤더 찾기 (여러 패턴 지원)
-  const header = document.querySelector('#app-header, header, .header, nav');
-  if (!header) { setTimeout(injectBadge, 500); return; }
-
-  const badge = document.createElement('span');
-  badge.id = 'yp-badge';
-  badge.className = 'yp-badge';
-  badge.onclick = () => PayModal.open();
-  header.appendChild(badge);
-  updateBadge();
-}
-
+/* ─────────────── 배지 업데이트 ─────────────── */
 function updateBadge() {
-  const badge = document.getElementById('yp-badge');
+  // index.html의 기존 trial-badge 요소 사용
+  const badge = document.getElementById('trial-badge');
   if (!badge) return;
-  const text = Trial.getBadgeText();
-  badge.textContent = text;
-  badge.className = 'yp-badge';
-  if (text.includes('종료') || text.includes('다 사용')) badge.classList.add('danger');
-  else if (text.includes('1회')) badge.classList.add('warn');
+
+  if (Trial.isPaid()) {
+    // 유료 회원
+    const r = Trial.getPaidRemaining();
+    badge.textContent = r > 0 ? `오늘 ${r}회 남음` : '오늘 다 사용했어요';
+    badge.classList.remove('hidden', 'exhausted');
+    badge.className = 'trial-badge' + (r === 0 ? ' exhausted' : '');
+    badge.onclick = () => PayModal.open();
+  } else {
+    // 무료 회원
+    const r = Trial.getRemaining();
+    const week = Trial.getWeek();
+    badge.classList.remove('hidden');
+    if (week >= 4 && r === 0) {
+      badge.textContent = '체험 종료';
+      badge.className = 'trial-badge exhausted';
+    } else if (r === 0) {
+      badge.textContent = '오늘 0회 남음';
+      badge.className = 'trial-badge exhausted';
+    } else {
+      badge.textContent = `오늘 ${r}회 남음`;
+      badge.className = 'trial-badge';
+    }
+    badge.onclick = () => PayModal.open();
+  }
 }
 
 /* ─────────────── 결제/플랜 모달 ─────────────── */
@@ -447,7 +460,12 @@ const SignupModal = (() => {
     document.getElementById('yp-signup-close').onclick = close;
     document.getElementById('yp-btn-signup').onclick = doSignup;
     document.getElementById('yp-btn-goto-pay').onclick = () => { close(); PayModal.open(); };
-    document.getElementById('yp-signup-done-btn').onclick = close;
+    document.getElementById('yp-signup-done-btn').onclick = () => {
+      close();
+      // 헤더 상태 새로고침
+      if (typeof window.applyHeaderState === 'function') window.applyHeaderState();
+      updateBadge();
+    };
   }
 
   async function doSignup() {
@@ -478,7 +496,14 @@ const SignupModal = (() => {
         // 가입 시 무료 기간 1주 추가
         const first = new Date(Trial.getFirstDate());
         first.setDate(first.getDate() + 7);
-        localStorage.setItem('yp_first_date', first.toISOString().slice(0,10));
+        localStorage.setItem('firstVisitDate', Trial._today());  // 오늘 기준 리셋
+
+        // 앱 세션 상태 반영 (index.html의 state)
+        if (window.state) {
+          window.state.student = { name, grade: grade || '', code: data.code || '' };
+          localStorage.setItem('yp_student', JSON.stringify(window.state.student));
+          if (typeof window.applyHeaderState === 'function') window.applyHeaderState();
+        }
 
         document.getElementById('yp-signup-form-view').style.display = 'none';
         document.getElementById('yp-signup-done-view').style.display = 'block';
@@ -500,23 +525,20 @@ const SignupModal = (() => {
   return { open, close };
 })();
 
-/* ─────────────── 풀이 버튼 가로채기 ─────────────── */
-function interceptSolveButton() {
-  // '풀기' 버튼을 찾아서 횟수 체크 추가
-  const btnSolve = document.getElementById('btn-solve');
-  if (!btnSolve) { setTimeout(interceptSolveButton, 500); return; }
-
-  // 기존 클릭 이벤트 보존 + 횟수 체크 추가
-  btnSolve.addEventListener('click', e => {
-    if (!Trial.canSolve()) {
-      e.stopImmediatePropagation();
-      PayModal.open();
-      return;
-    }
-    // 사용 처리
-    Trial.use();
+/* ─────────────── index.html 함수 오버라이드 ─────────────── */
+function overrideAppFunctions() {
+  // index.html의 canUseTrial을 payment-system의 로직으로 교체 (유료 회원 지원)
+  window.canUseTrial = function() {
+    return Trial.canSolve();
+  };
+  // index.html의 updateTrialBadge를 교체
+  window.updateTrialBadge = function() {
     updateBadge();
-  }, true); // capture phase — 기존 핸들러보다 먼저 실행
+  };
+  // index.html의 incrementUsage를 교체 (Trial.use 사용)
+  window.incrementUsage = function() {
+    Trial.use();
+  };
 }
 
 /* ─────────────── 결제 성공 페이지 처리 ─────────────── */
@@ -561,23 +583,9 @@ function init() {
   // 결제 성공/실패 페이지 처리
   if (location.pathname.includes('payment-success')) { handleSuccessPage(); return; }
 
-  // 앱 로드 후 헤더 배지 삽입
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      injectBadge();
-      interceptSolveButton();
-    });
-  } else {
-    injectBadge();
-    interceptSolveButton();
-  }
-
-  // 앱이 동적으로 로드되는 경우 (로그인 후) 재시도
-  const observer = new MutationObserver(() => {
-    injectBadge();
-    interceptSolveButton();
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+  // index.html 함수 오버라이드 + 배지 업데이트
+  overrideAppFunctions();
+  updateBadge();
 }
 
 init();

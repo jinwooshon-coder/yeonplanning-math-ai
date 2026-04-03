@@ -731,7 +731,7 @@
       <h3>오늘 무료 체험이 끝났어요</h3>
       <p id="limit-modal-msg">내일 다시 무료로 사용할 수 있어요.<br>회원가입하면 무제한으로 풀 수 있어요!</p>
       <div class="limit-btns">
-        <button class="btn-signup" id="btn-limit-signup">회원가입 문의</button>
+        <button class="btn-signup" id="btn-limit-signup">회원가입하기</button>
         <button class="btn-tomorrow" id="btn-limit-close">내일 다시 오기</button>
       </div>
     </div>
@@ -752,7 +752,7 @@
         <strong id="student-name-display">-</strong>
         <span id="student-grade-display"></span>
       </div>
-      <button class="btn-header-login" id="btn-header-login">👤 로그인</button>
+      <button class="btn-header-login" id="btn-header-login">👤 회원가입</button>
       <button class="btn-logout hidden" id="btn-logout">로그아웃</button>
     </div>
   </header>
@@ -1146,9 +1146,13 @@ function applyHeaderState() {
 }
 applyHeaderState();
 
-// 로그인 버튼 — 준비 중 안내
+// 로그인 버튼 → 회원가입 모달 (payment-system.js)
 $('btn-header-login').addEventListener('click', () => {
-  alert('회원 기능 준비 중입니다.\n문의: 연소사 선생님');
+  if (window.YP && window.YP.SignupModal) {
+    window.YP.SignupModal.open();
+  } else {
+    alert('회원 기능 준비 중입니다.\n문의: 연소사 선생님');
+  }
 });
 
 // 체험 종료 모달 닫기
@@ -1160,7 +1164,11 @@ $('btn-limit-close').addEventListener('click', () => {
 });
 $('btn-limit-signup').addEventListener('click', () => {
   $('limit-modal').classList.remove('show');
-  alert('회원 가입 문의: 연소사 선생님');
+  if (window.YP && window.YP.SignupModal) {
+    window.YP.SignupModal.open();
+  } else {
+    alert('회원 가입 문의: 연소사 선생님');
+  }
 });
 
 $('btn-logout').addEventListener('click', () => {
@@ -1607,6 +1615,10 @@ async function autoSave(result, problemText) {
     }, 2500);
   }
 }
+
+// payment-system.js에서 접근할 수 있도록 전역 노출
+window.state = state;
+window.applyHeaderState = applyHeaderState;
 </script>
   <script src="/payment-system.js"></script>
 </body>

@@ -8,7 +8,19 @@
 [functions.solve]
   timeout = 30
 
+[functions.payment-confirm]
+  timeout = 15
+
+[functions.signup]
+  timeout = 15
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
+  status = 200
+
+# 결제 실패 페이지도 payment-success.html로 라우팅 (내부에서 분기)
+[[redirects]]
+  from = "/payment-fail"
+  to = "/payment-success.html"
   status = 200
