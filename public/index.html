@@ -1707,6 +1707,7 @@ const $ = id => document.getElementById(id);
 /* ══════════════════════════════════════
    앱 상태
 ══════════════════════════════════════ */
+const APP_VERSION = 'v1.5.0';         // 앱 버전
 const TEACHER_SECRET = 'supul2026';  // 선생님 비밀 코드
 const TEACHER_DAILY_LIMIT = 50;       // 선생님 하루 풀이 횟수
 
@@ -2963,6 +2964,42 @@ $('btn-board-delete').addEventListener('click', () => {
   boardCurrentPostId = null;
   renderBoardList();
 });
+
+// 버전 업데이트 자동 공지
+function checkVersionNotice() {
+  const lastVersion = localStorage.getItem('yp_last_version');
+  if (lastVersion === APP_VERSION) return;
+
+  localStorage.setItem('yp_last_version', APP_VERSION);
+
+  // 첫 방문이면 공지 안 올림
+  if (!lastVersion) return;
+
+  const posts = loadBoardPosts();
+  // 이미 같은 버전 공지가 있으면 스킵
+  if (posts.some(p => p.versionTag === APP_VERSION)) return;
+
+  const changes = {
+    'v1.5.0': '게시판 기능 오픈 (공지사항, 질문/답변, 비밀글, 댓글)',
+  };
+  const changeLog = changes[APP_VERSION] || '성능 개선 및 버그 수정';
+
+  posts.push({
+    id: 'p' + Date.now() + 'ver',
+    cat: 'notice',
+    title: '🆕 수풀AI ' + APP_VERSION + ' 업데이트',
+    content: '수풀AI가 ' + APP_VERSION + ' 버전으로 업데이트되었습니다!\n\n📋 변경사항:\n' + changeLog + '\n\n더 좋은 수풀AI가 되겠습니다. 감사합니다! 🙏',
+    author: '수풀AI 운영팀',
+    isTeacher: true,
+    isSecret: false,
+    versionTag: APP_VERSION,
+    ts: Date.now(),
+    replies: []
+  });
+  saveBoardPosts(posts);
+}
+
+checkVersionNotice();
 
 // 초기 렌더
 renderBoardList();
