@@ -111,9 +111,9 @@ style.textContent = `
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(29,158,117,0.15);
-  border: 1px solid rgba(29,158,117,0.4);
-  color: #1D9E75;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.3);
+  color: #34d399;
   border-radius: 20px;
   padding: 4px 11px;
   font-size: 12px;
@@ -122,144 +122,152 @@ style.textContent = `
   transition: all .2s;
   white-space: nowrap;
 }
-.yp-badge.warn { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.4); color: #f59e0b; }
-.yp-badge.danger { background: rgba(255,77,109,.15); border-color: rgba(255,77,109,.4); color: #ff4d6d; }
+.yp-badge.warn { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.3); color: #f59e0b; }
+.yp-badge.danger { background: rgba(244,63,94,.12); border-color: rgba(244,63,94,.3); color: #f43f5e; }
 .yp-badge:hover { transform: scale(1.04); }
 
 /* ── 오버레이 ── */
 .yp-overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.7);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 9999;
   align-items: center;
   justify-content: center;
   padding: 16px;
 }
-.yp-overlay.open { display: flex; animation: ypFadeIn .2s ease; }
-@keyframes ypFadeIn { from { opacity:0; transform:scale(.95); } to { opacity:1; transform:scale(1); } }
+.yp-overlay.open { display: flex; animation: ypFadeIn .25s ease; }
+@keyframes ypFadeIn { from { opacity:0; transform:scale(.95) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
 
 /* ── 모달 공통 ── */
 .yp-modal {
-  background: #111f3a;
-  border: 1px solid #1e3a5f;
-  border-radius: 20px;
+  background: #0f1729;
+  border: 1px solid #243354;
+  border-radius: 24px;
   width: 100%; max-width: 420px;
   max-height: 90vh;
   overflow-y: auto;
-  padding: 28px 24px 24px;
+  padding: 32px 24px 24px;
   position: relative;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
 }
 .yp-modal-close {
   position: absolute; top: 16px; right: 16px;
-  background: rgba(255,255,255,.08);
-  border: none; color: #8ba3c0;
+  background: rgba(255,255,255,.06);
+  border: none; color: #4a5e7a;
   width: 32px; height: 32px; border-radius: 50%;
   cursor: pointer; font-size: 16px;
   display: flex; align-items: center; justify-content: center;
-  transition: background .2s;
+  transition: all .2s;
 }
-.yp-modal-close:hover { background: rgba(255,255,255,.15); }
-.yp-modal h2 { font-size: 20px; font-weight: 800; color: #e8f0fe; margin-bottom: 6px; }
-.yp-modal p  { font-size: 13px; color: #8ba3c0; line-height: 1.6; margin-bottom: 20px; }
+.yp-modal-close:hover { background: rgba(255,255,255,.12); color: #94a3c0; }
+.yp-modal h2 { font-size: 20px; font-weight: 800; color: #f0f4ff; margin-bottom: 6px; }
+.yp-modal p  { font-size: 13px; color: #94a3c0; line-height: 1.7; margin-bottom: 20px; }
 
 /* ── 플랜 카드 ── */
 .yp-plans { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
 .yp-plan {
-  border: 2px solid #1e3a5f;
-  border-radius: 14px;
-  padding: 16px;
+  border: 2px solid #1a2744;
+  border-radius: 16px;
+  padding: 18px;
   cursor: pointer;
   transition: all .2s;
   position: relative;
+  background: #141e33;
 }
-.yp-plan:hover { border-color: #1D9E75; background: rgba(29,158,117,.06); }
-.yp-plan.selected { border-color: #1D9E75; background: rgba(29,158,117,.1); }
-.yp-plan-name { font-size: 15px; font-weight: 700; color: #e8f0fe; margin-bottom: 2px; }
-.yp-plan-desc { font-size: 12px; color: #8ba3c0; }
-.yp-plan-price { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 16px; font-weight: 800; color: #1D9E75; }
+.yp-plan:hover { border-color: #10b981; background: rgba(16,185,129,.06); }
+.yp-plan.selected { border-color: #10b981; background: rgba(16,185,129,.08); box-shadow: 0 0 0 1px rgba(16,185,129,.15); }
+.yp-plan-name { font-size: 15px; font-weight: 700; color: #f0f4ff; margin-bottom: 2px; }
+.yp-plan-desc { font-size: 12px; color: #94a3c0; }
+.yp-plan-price { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 16px; font-weight: 800; color: #34d399; }
 .yp-plan-badge-rec {
   position: absolute; top: -10px; right: 12px;
-  background: #1D9E75; color: #fff;
+  background: linear-gradient(135deg, #10b981, #059669); color: #fff;
   font-size: 10px; font-weight: 700;
-  padding: 2px 8px; border-radius: 20px;
+  padding: 3px 10px; border-radius: 20px;
 }
 
 /* ── 버튼 ── */
 .yp-btn {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
   border-radius: 12px;
   border: none;
   font-size: 15px;
   font-weight: 700;
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
   cursor: pointer;
   transition: all .2s;
 }
 .yp-btn-pay {
-  background: linear-gradient(135deg, #1D9E75, #14c98a);
+  background: linear-gradient(135deg, #10b981, #059669);
   color: #fff;
   margin-bottom: 10px;
+  box-shadow: 0 4px 16px rgba(16,185,129,.25);
 }
-.yp-btn-pay:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(29,158,117,.4); }
-.yp-btn-pay:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.yp-btn-pay:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(16,185,129,.35); }
+.yp-btn-pay:active { transform: scale(.97); }
+.yp-btn-pay:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 .yp-btn-kakao {
   background: #FEE500;
   color: #191919;
   margin-bottom: 10px;
   font-size: 14px;
 }
-.yp-btn-kakao:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(254,229,0,.4); }
+.yp-btn-kakao:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(254,229,0,.3); }
+.yp-btn-kakao:active { transform: scale(.97); }
 .yp-btn-secondary {
-  background: rgba(255,255,255,.06);
-  border: 1px solid #1e3a5f;
-  color: #8ba3c0;
+  background: rgba(255,255,255,.04);
+  border: 1px solid #1a2744;
+  color: #94a3c0;
 }
-.yp-btn-secondary:hover { background: rgba(255,255,255,.1); }
+.yp-btn-secondary:hover { background: rgba(255,255,255,.08); }
 
 /* ── 입력 ── */
 .yp-field { margin-bottom: 14px; }
-.yp-field label { display: block; font-size: 12px; color: #8ba3c0; margin-bottom: 6px; font-weight: 600; }
+.yp-field label { display: block; font-size: 12px; color: #94a3c0; margin-bottom: 6px; font-weight: 600; }
 .yp-field input {
   width: 100%;
-  background: rgba(255,255,255,.05);
-  border: 1px solid #1e3a5f;
-  border-radius: 10px;
-  padding: 12px 14px;
-  color: #e8f0fe;
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid #1a2744;
+  border-radius: 12px;
+  padding: 13px 16px;
+  color: #f0f4ff;
   font-size: 14px;
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
   outline: none;
-  transition: border-color .2s;
+  transition: border-color .2s, box-shadow .2s;
 }
-.yp-field input:focus { border-color: #1D9E75; }
-.yp-field input::placeholder { color: #4a6580; }
+.yp-field input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.1); }
+.yp-field input::placeholder { color: #4a5e7a; }
 
 /* ── 구분선 ── */
-.yp-divider { text-align: center; color: #4a6580; font-size: 12px; margin: 12px 0; }
+.yp-divider { text-align: center; color: #4a5e7a; font-size: 12px; margin: 14px 0; }
 
 /* ── 주차 프로그레스 ── */
 .yp-trial-info {
-  background: rgba(255,255,255,.04);
-  border: 1px solid #1e3a5f;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid #1a2744;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
 }
-.yp-trial-row { display: flex; justify-content: space-between; font-size: 12px; color: #8ba3c0; margin-bottom: 8px; }
-.yp-week-dots { display: flex; gap: 6px; }
+.yp-trial-row { display: flex; justify-content: space-between; font-size: 12px; color: #94a3c0; margin-bottom: 10px; }
+.yp-week-dots { display: flex; gap: 8px; }
 .yp-week-dot {
-  width: 28px; height: 6px; border-radius: 3px;
-  background: #1e3a5f;
+  flex: 1; height: 6px; border-radius: 3px;
+  background: #1a2744;
 }
-.yp-week-dot.done { background: #1D9E75; }
+.yp-week-dot.done { background: #10b981; }
 .yp-week-dot.current { background: #f59e0b; }
 
 /* ── 성공 화면 ── */
 .yp-success { text-align: center; padding: 20px 0; }
-.yp-success-icon { font-size: 56px; margin-bottom: 12px; }
-.yp-success h3 { font-size: 20px; font-weight: 800; color: #e8f0fe; margin-bottom: 8px; }
-.yp-success p { font-size: 14px; color: #8ba3c0; }
+.yp-success-icon { font-size: 56px; margin-bottom: 14px; filter: drop-shadow(0 4px 12px rgba(0,0,0,.3)); }
+.yp-success h3 { font-size: 20px; font-weight: 800; color: #f0f4ff; margin-bottom: 8px; }
+.yp-success p { font-size: 14px; color: #94a3c0; line-height: 1.7; }
 `;
 document.head.appendChild(style);
 
