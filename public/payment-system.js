@@ -204,6 +204,13 @@ style.textContent = `
 }
 .yp-btn-pay:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(29,158,117,.4); }
 .yp-btn-pay:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.yp-btn-kakao {
+  background: #FEE500;
+  color: #191919;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.yp-btn-kakao:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(254,229,0,.4); }
 .yp-btn-secondary {
   background: rgba(255,255,255,.06);
   border: 1px solid #1e3a5f;
@@ -319,6 +326,7 @@ const PayModal = (() => {
 
         <!-- 결제 버튼 -->
         <button class="yp-btn yp-btn-pay" id="yp-btn-pay">💳 결제하고 시작하기</button>
+        <button class="yp-btn yp-btn-kakao" id="yp-btn-kakao">💬 부모님께 카카오톡으로 결제 링크 보내기</button>
         <div class="yp-divider">또는</div>
         <button class="yp-btn yp-btn-secondary" id="yp-btn-signup-link">✏️ 회원가입만 하기 (무료 체험 연장)</button>
       </div>
@@ -328,6 +336,7 @@ const PayModal = (() => {
     overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     document.getElementById('yp-pay-close').onclick = close;
     document.getElementById('yp-btn-pay').onclick = startPayment;
+    document.getElementById('yp-btn-kakao').onclick = shareKakao;
     document.getElementById('yp-btn-signup-link').onclick = () => { close(); SignupModal.open(); };
 
     renderPlans();
@@ -397,6 +406,41 @@ const PayModal = (() => {
     } finally {
       btn.disabled = false;
       btn.textContent = '💳 결제하고 시작하기';
+    }
+  }
+
+  async function shareKakao() {
+    const planName = selectedPlan.name;
+    const price = selectedPlan.price.toLocaleString();
+    const siteUrl = location.origin;
+    const msg = `[수풀AI 결제 요청]\n\n안녕하세요, 부모님!\n수풀AI ${planName} 플랜(월 ${price}원) 결제를 부탁드려요.\n\n아래 링크에서 결제할 수 있어요:\n${siteUrl}`;
+
+    // 모바일: navigator.share (카카오톡 선택 가능)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: '수풀AI 결제 요청',
+          text: msg,
+          url: siteUrl,
+        });
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+
+    // 데스크톱: 카카오톡 공유 URL
+    const kakaoShareUrl = 'https://sharer.kakao.com/talk/friends/picker/link?url=' + encodeURIComponent(siteUrl);
+    const w = window.open(kakaoShareUrl, '_blank');
+
+    // 팝업 차단 시 클립보드 복사 폴백
+    if (!w || w.closed) {
+      try {
+        await navigator.clipboard.writeText(msg);
+        alert('결제 링크가 복사되었어요!\n카카오톡에서 부모님께 붙여넣기 해주세요.');
+      } catch {
+        prompt('아래 메시지를 복사해서 카카오톡으로 보내주세요:', msg);
+      }
     }
   }
 
