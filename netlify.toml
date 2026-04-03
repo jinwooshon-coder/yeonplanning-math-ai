@@ -19,7 +19,12 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# 결제 실패 페이지도 payment-success.html로 라우팅 (내부에서 분기)
+# 결제 성공/실패 → payment-success.html (내부에서 분기 처리)
+[[redirects]]
+  from = "/payment-success"
+  to = "/payment-success.html"
+  status = 200
+
 [[redirects]]
   from = "/payment-fail"
   to = "/payment-success.html"
