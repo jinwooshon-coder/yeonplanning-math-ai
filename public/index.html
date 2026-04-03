@@ -1165,6 +1165,27 @@
 </div>
 
 <!-- ══════════════════════════════
+     선생님 로그인 모달
+══════════════════════════════ -->
+<div class="modal-overlay" id="teacher-modal">
+  <div class="modal-card">
+    <button class="modal-close" id="teacher-modal-close">✕</button>
+    <div class="limit-modal-body">
+      <div class="limit-icon">👩‍🏫</div>
+      <h3>선생님 관리자 로그인</h3>
+      <p style="color:var(--text-sub);margin-bottom:16px;">관리자 비밀 코드를 입력하세요</p>
+      <input type="text" id="teacher-name-input" placeholder="선생님 이름" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;margin-bottom:10px;outline:none;">
+      <input type="password" id="teacher-code-input" placeholder="비밀 코드" style="width:100%;padding:12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;margin-bottom:16px;outline:none;">
+      <p id="teacher-error-msg" style="color:#ef4444;font-size:13px;margin-bottom:10px;display:none;">비밀 코드가 올바르지 않습니다.</p>
+      <div class="limit-btns">
+        <button class="btn-signup" id="btn-teacher-login">로그인</button>
+        <button class="btn-tomorrow" id="btn-teacher-cancel">취소</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
      메인 앱
 ══════════════════════════════ -->
 <div id="app">
@@ -1178,7 +1199,13 @@
         <strong id="student-name-display">-</strong>
         <span id="student-grade-display"></span>
       </div>
+      <div class="header-teacher hidden" id="header-teacher-info" style="display:none;align-items:center;gap:6px;">
+        <span style="background:rgba(245,158,11,0.15);color:#f59e0b;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;">선생님</span>
+        <strong id="teacher-name-display" style="font-size:13px;">-</strong>
+        <span id="teacher-remaining" style="font-size:11px;color:var(--text-sub);"></span>
+      </div>
       <button class="btn-header-login" id="btn-header-login">회원가입</button>
+      <button class="btn-header-login hidden" id="btn-teacher-open" style="display:none;background:rgba(245,158,11,0.1);border-color:#f59e0b;color:#f59e0b;">선생님 로그인</button>
       <button class="btn-logout hidden" id="btn-logout">로그아웃</button>
     </div>
   </header>
@@ -1503,8 +1530,12 @@ const $ = id => document.getElementById(id);
 /* ══════════════════════════════════════
    앱 상태
 ══════════════════════════════════════ */
+const TEACHER_SECRET = 'supul2026';  // 선생님 비밀 코드
+const TEACHER_DAILY_LIMIT = 50;       // 선생님 하루 풀이 횟수
+
 const state = {
   student: null,        // { name, code, grade }
+  teacher: null,        // { name, code } — 선생님 관리자
   uploadedImage: null,  // base64 string
   solveResult: null,    // API 응답
   selfLevel: null,      // 1~5
@@ -1626,8 +1657,33 @@ function incrementUsage() {
   localStorage.setItem(key, String(used + 1));
 }
 
+function getTeacherUsage() {
+  const today = getToday();
+  const used = parseInt(localStorage.getItem('teacherUsage:' + today) || '0', 10);
+  return { used, remaining: Math.max(0, TEACHER_DAILY_LIMIT - used) };
+}
+
+function incrementTeacherUsage() {
+  const today = getToday();
+  const key = 'teacherUsage:' + today;
+  const used = parseInt(localStorage.getItem(key) || '0', 10);
+  localStorage.setItem(key, String(used + 1));
+}
+
 function updateTrialBadge() {
   const badge = $('trial-badge');
+  if (state.teacher) {
+    badge.classList.remove('hidden');
+    badge.classList.remove('exhausted');
+    const { remaining } = getTeacherUsage();
+    badge.textContent = '오늘 ' + remaining + '/' + TEACHER_DAILY_LIMIT + '회';
+    badge.style.background = 'rgba(245,158,11,0.12)';
+    badge.style.color = '#f59e0b';
+    $('teacher-remaining').textContent = remaining + '회 남음';
+    return;
+  }
+  badge.style.background = '';
+  badge.style.color = '';
   if (state.student) {
     badge.classList.add('hidden');
     return;
@@ -1648,11 +1704,20 @@ function updateTrialBadge() {
 
 function canUseTrial() {
   if (state.student) return true;
+  if (state.teacher) {
+    const { remaining } = getTeacherUsage();
+    return remaining > 0;
+  }
   const { remaining, dailyLimit } = getTrialInfo();
   return remaining > 0;
 }
 
 function showLimitModal() {
+  if (state.teacher) {
+    $('limit-modal-msg').innerHTML = '오늘 ' + TEACHER_DAILY_LIMIT + '회 풀이를 모두 사용했어요.<br>내일 다시 사용할 수 있습니다!';
+    $('limit-modal').classList.add('show');
+    return;
+  }
   const { week, dailyLimit } = getTrialInfo();
   const msg = dailyLimit === 0
     ? '무료 체험 기간이 종료되었어요.<br>회원가입하면 무제한으로 풀 수 있어요!'
@@ -1668,18 +1733,37 @@ const saved = localStorage.getItem('yp_student');
 if (saved) {
   state.student = JSON.parse(saved);
 }
+const savedTeacher = localStorage.getItem('yp_teacher');
+if (savedTeacher) {
+  state.teacher = JSON.parse(savedTeacher);
+}
 updateTrialBadge();
 
 function applyHeaderState() {
-  if (state.student) {
+  // 선생님 상태
+  if (state.teacher) {
+    $('teacher-name-display').textContent = state.teacher.name;
+    $('header-teacher-info').style.display = 'flex';
+    $('header-teacher-info').classList.remove('hidden');
+    $('btn-header-login').style.display = 'none';
+    $('btn-teacher-open').style.display = 'none';
+    $('btn-logout').classList.remove('hidden');
+    $('header-student-info').classList.add('hidden');
+  } else if (state.student) {
     $('student-name-display').textContent = state.student.name;
     $('student-grade-display').textContent = state.student.grade ? ' (' + state.student.grade + ')' : '';
     $('header-student-info').classList.remove('hidden');
+    $('header-teacher-info').style.display = 'none';
     $('btn-header-login').classList.add('hidden');
+    $('btn-teacher-open').style.display = 'none';
     $('btn-logout').classList.remove('hidden');
   } else {
     $('header-student-info').classList.add('hidden');
+    $('header-teacher-info').style.display = 'none';
     $('btn-header-login').classList.remove('hidden');
+    $('btn-header-login').style.display = '';
+    $('btn-teacher-open').style.display = '';
+    $('btn-teacher-open').classList.remove('hidden');
     $('btn-logout').classList.add('hidden');
   }
   updateTrialBadge();
@@ -1711,8 +1795,57 @@ $('btn-limit-signup').addEventListener('click', () => {
 
 $('btn-logout').addEventListener('click', () => {
   localStorage.removeItem('yp_student');
+  localStorage.removeItem('yp_teacher');
   state.student = null;
+  state.teacher = null;
   applyHeaderState();
+});
+
+/* ══════════════════════════════════════
+   선생님 관리자 로그인
+══════════════════════════════════════ */
+$('btn-teacher-open').addEventListener('click', () => {
+  $('teacher-modal').classList.add('show');
+  $('teacher-name-input').value = '';
+  $('teacher-code-input').value = '';
+  $('teacher-error-msg').style.display = 'none';
+  $('teacher-name-input').focus();
+});
+
+$('teacher-modal-close').addEventListener('click', () => {
+  $('teacher-modal').classList.remove('show');
+});
+
+$('btn-teacher-cancel').addEventListener('click', () => {
+  $('teacher-modal').classList.remove('show');
+});
+
+$('btn-teacher-login').addEventListener('click', () => {
+  const name = $('teacher-name-input').value.trim();
+  const code = $('teacher-code-input').value.trim();
+
+  if (!name) {
+    $('teacher-error-msg').textContent = '이름을 입력해주세요.';
+    $('teacher-error-msg').style.display = 'block';
+    return;
+  }
+
+  if (code !== TEACHER_SECRET) {
+    $('teacher-error-msg').textContent = '비밀 코드가 올바르지 않습니다.';
+    $('teacher-error-msg').style.display = 'block';
+    $('teacher-code-input').value = '';
+    $('teacher-code-input').focus();
+    return;
+  }
+
+  state.teacher = { name, code: '***' };
+  localStorage.setItem('yp_teacher', JSON.stringify(state.teacher));
+  $('teacher-modal').classList.remove('show');
+  applyHeaderState();
+});
+
+$('teacher-code-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') $('btn-teacher-login').click();
 });
 
 /* ══════════════════════════════════════
@@ -2271,7 +2404,10 @@ async function doSolve() {
     $('loading-zone').classList.add('hidden');
     $('result-zone').classList.remove('hidden');
 
-    if (!state.student) {
+    if (state.teacher) {
+      incrementTeacherUsage();
+      updateTrialBadge();
+    } else if (!state.student) {
       incrementUsage();
       updateTrialBadge();
     }
