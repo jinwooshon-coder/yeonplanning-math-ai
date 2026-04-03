@@ -14,7 +14,7 @@
 
 /* ─────────────── 설정 ─────────────── */
 const CONFIG = {
-  TOSS_CLIENT_KEY: 'test_ck_여기에_토스_테스트키_입력',  // ← 교체 필요
+  TOSS_CLIENT_KEY: 'test_ck_XZYkKL4MrjwY2adJeB6A80zJwlEW',
   PLANS: [
     { id: 'basic',    name: '베이직',  price: 14900, daily: 10, desc: '하루 10문제' },
     { id: 'premium',  name: '프리미엄', price: 19900, daily: 30, desc: '하루 30문제' },
