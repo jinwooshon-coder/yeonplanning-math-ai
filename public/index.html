@@ -2603,9 +2603,10 @@ async function doSolve() {
 }
 
 /* ══════════════════════════════════════
-   자동 저장 (문제뱅크)
+   자동 저장 (문제뱅크 + 서버)
 ══════════════════════════════════════ */
-function autoSave(data, text) {
+async function autoSave(data, text) {
+  // 1) 로컬 문제뱅크 저장
   try {
     const problems = getSavedProblems();
     const diff = (data.difficulty_ai || 3) <= 2 ? 'easy' : (data.difficulty_ai || 3) >= 4 ? 'hard' : 'mid';
@@ -2620,6 +2621,34 @@ function autoSave(data, text) {
     if (problems.length > 100) problems.length = 100;
     localStorage.setItem('yp_bank', JSON.stringify(problems));
   } catch {}
+
+  // 2) 서버 저장 (백그라운드)
+  const toast = $('save-toast');
+  try {
+    await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        student: state.student,
+        problem: text,
+        image: state.uploadedImage,
+        result: data,
+        selfLevel: state.selfLevel,
+        elapsedSec: Math.round((Date.now() - state.startTime) / 1000),
+      }),
+    });
+    toast.textContent = '저장됨 ✓';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  } catch {
+    toast.textContent = '저장 오류 ⚠';
+    toast.style.background = 'var(--danger)';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.style.background = '';
+    }, 2500);
+  }
 }
 
 /* ══════════════════════════════════════
@@ -3055,37 +3084,6 @@ checkVersionNotice();
 // 초기 렌더
 renderBoardList();
 
-/* ══════════════════════════════════════
-   자동 저장 (백그라운드)
-══════════════════════════════════════ */
-async function autoSave(result, problemText) {
-  const toast = $('save-toast');
-  try {
-    await fetch('/api/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        student: state.student,
-        problem: problemText,
-        image: state.uploadedImage,
-        result,
-        selfLevel: state.selfLevel,
-        elapsedSec: Math.round((Date.now() - state.startTime) / 1000),
-      }),
-    });
-    toast.textContent = '저장됨 ✓';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  } catch {
-    toast.textContent = '저장 오류 ⚠';
-    toast.style.background = 'var(--danger)';
-    toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-      toast.style.background = '';
-    }, 2500);
-  }
-}
 
 </script>
 </body>
