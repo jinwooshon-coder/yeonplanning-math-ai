@@ -45,6 +45,21 @@ exports.handler = async (event) => {
     const sheets = google.sheets({ version: 'v4', auth });
     const drive = google.drive({ version: 'v3', auth });
 
+    // ── 학생 확인 (학생명단에서 학생코드로 매칭) ──
+    let studentRow = null;
+    if (student?.code) {
+      try {
+        const studentList = await sheets.spreadsheets.values.get({
+          spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+          range: '학생명단!A:F',
+        });
+        const rows = studentList.data.values || [];
+        studentRow = rows.find(row => row[1] === student.code); // row[1] = 학생코드
+      } catch (e) {
+        console.error('[SAVE] 학생 조회 실패:', e.message);
+      }
+    }
+
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
     const displayDate = now.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
@@ -62,7 +77,7 @@ exports.handler = async (event) => {
       result?.problem || problem || '',     // 문제내용
       result?.answer || '',                 // 정답
       result?.subject || '',               // 단원
-      result?.grade || student?.grade || '',// 학년
+      result?.grade || studentRow?.[2] || student?.grade || '',// 학년 (학생명단 row[2] 우선)
       result?.difficulty_ai || '',          // 난이도(AI)
       selfLevel || '',                      // 난이도(자가평가)
       elapsedSec || '',                     // 풀이 시간(초)
