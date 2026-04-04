@@ -3037,6 +3037,38 @@ checkVersionNotice();
 // 초기 렌더
 renderBoardList();
 
+/* ══════════════════════════════════════
+   자동 저장 (백그라운드)
+══════════════════════════════════════ */
+async function autoSave(result, problemText) {
+  const toast = $('save-toast');
+  try {
+    await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        student: state.student,
+        problem: problemText,
+        image: state.uploadedImage,
+        result,
+        selfLevel: state.selfLevel,
+        elapsedSec: Math.round((Date.now() - state.startTime) / 1000),
+      }),
+    });
+    toast.textContent = '저장됨 ✓';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  } catch {
+    toast.textContent = '저장 오류 ⚠';
+    toast.style.background = 'var(--danger)';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.style.background = '';
+    }, 2500);
+  }
+}
+
 </script>
 </body>
 </html>
