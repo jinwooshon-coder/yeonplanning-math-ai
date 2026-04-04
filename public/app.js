@@ -303,13 +303,20 @@ async function handleSolve() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        question,
-        imageBase64: attachedImage,
-        studentId: currentStudent.id
+        text: question,
+        image: attachedImage,
+        student: currentStudent.id
       })
     });
 
-    const solveData = await solveRes.json();
+    let solveData;
+    const ct = solveRes.headers.get('content-type') || '';
+    if (ct.includes('application/json')) {
+      solveData = await solveRes.json();
+    } else {
+      const text = await solveRes.text();
+      throw new Error(`서버 오류 (${solveRes.status}): ${text.slice(0, 200)}`);
+    }
 
     if (!solveRes.ok) {
       throw new Error(solveData.error || '풀이에 실패했습니다.');
