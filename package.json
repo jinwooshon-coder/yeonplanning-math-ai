@@ -1,10 +1,19 @@
 {
-  "name": "yeonplanning-math-ai",
+  "name": "supulai",
   "version": "1.0.0",
-  "description": "연플래닝 수학AI - Claude Opus 기반 수학 풀이 PWA",
-  "private": true,
+  "description": "수풀AI - 초중고 완전학습 앱",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site - no build step'"
+  },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
-    "googleapis": "^144.0.0"
+    "googleapis": "^140.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

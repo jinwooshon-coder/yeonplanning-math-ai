@@ -1,52 +1,40 @@
-const CACHE_NAME = 'yeonplanning-math-v5';
+const CACHE_NAME = 'supulai-cache-v18';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/manifest.json'
-];
+    '/',
+    '/index.html',
+    '/manifest.json',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
+  ];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting();
+// 설치: 정적 파일 캐시
+self.addEventListener('install', (e) => {
+    e.waitUntil(
+          caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+        );
+    self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+// 활성화: 이전 캐시 삭제
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+          caches.keys().then((keys) =>
+                  Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+                                 )
+        );
+    self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
+// 요청 처리
+self.addEventListener('fetch', (e) => {
+    // API 요청은 항상 네트워크
+                        if (e.request.url.includes('/api/') || e.request.url.includes('/.netlify/')) {
+                              return;
+                        }
 
-  // API 요청은 네트워크 우선
-  if (request.url.includes('/.netlify/functions/')) {
-    event.respondWith(
-      fetch(request).catch(() =>
-        new Response(JSON.stringify({ error: '오프라인 상태입니다.' }), {
-          status: 503,
-          headers: { 'Content-Type': 'application/json' }
-        })
-      )
-    );
-    return;
-  }
-
-  // 정적 자산은 네트워크 우선, 실패 시 캐시
-  event.respondWith(
-    fetch(request)
-      .then((res) => {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        return res;
-      })
-      .catch(() => caches.match(request))
-  );
-});
+                        // HTML은 네트워크 우선 (항상 최신 버전 제공)
+                        if (e.request.mode === 'navigate' || e.request.url.endsWith('.html')) {
+                              e.respondWith(
+                                      fetch(e.request)
+                                        .then((res) => {
+                                   
