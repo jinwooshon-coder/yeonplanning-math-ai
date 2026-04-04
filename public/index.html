@@ -1707,7 +1707,7 @@ const $ = id => document.getElementById(id);
 /* ══════════════════════════════════════
    앱 상태
 ══════════════════════════════════════ */
-const APP_VERSION = 'v1.5.0';         // 앱 버전
+const APP_VERSION = 'v1.6.0';         // 앱 버전
 const TEACHER_SECRET = 'supul2026';  // 선생님 비밀 코드
 const TEACHER_DAILY_LIMIT = 50;       // 선생님 하루 풀이 횟수
 
@@ -2603,6 +2603,26 @@ async function doSolve() {
 }
 
 /* ══════════════════════════════════════
+   자동 저장 (문제뱅크)
+══════════════════════════════════════ */
+function autoSave(data, text) {
+  try {
+    const problems = getSavedProblems();
+    const diff = (data.difficulty_ai || 3) <= 2 ? 'easy' : (data.difficulty_ai || 3) >= 4 ? 'hard' : 'mid';
+    problems.unshift({
+      question: text || '',
+      grade: data.grade || '중1',
+      unit: data.subject || '미분류',
+      diff,
+      date: new Date().toLocaleDateString('ko-KR'),
+      correct: true
+    });
+    if (problems.length > 100) problems.length = 100;
+    localStorage.setItem('yp_bank', JSON.stringify(problems));
+  } catch {}
+}
+
+/* ══════════════════════════════════════
    결과 렌더링
 ══════════════════════════════════════ */
 function renderResult(d) {
@@ -2985,14 +3005,12 @@ const CHANGELOG = {
       '📢 버전 업데이트 자동 공지 기능',
     ]
   },
-  // ── 다음 버전 예시 ──
-  // 'v1.6.0': {
-  //   date: '2026.4.x',
-  //   items: [
-  //     '🆕 새 기능 설명',
-  //     '🐛 버그 수정 내용',
-  //   ]
-  // },
+  'v1.6.0': {
+    date: '2026.4.4',
+    items: [
+      '🐛 autoSave 오류 수정 — 풀이 후 문제뱅크에 자동 저장',
+    ]
+  },
 };
 
 function checkVersionNotice() {
