@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding: 40px; background: #ccc; display: flex; gap: 40px; align-items: start; }
+
+  .icon-wrap {
+    position: relative;
+    border-radius: 22%;
+    overflow: hidden;
+  }
+  .icon-512 { width: 512px; height: 512px; }
+  .icon-192 { width: 192px; height: 192px; }
+
+  .icon-bg {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #9ab8aa 0%, #8BA99C 35%, #7a9a8c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle math symbols in background */
+  .math-deco {
+    position: absolute;
+    color: rgba(255,255,255,0.08);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-weight: 300;
+    pointer-events: none;
+  }
+  .icon-512 .d1 { font-size: 60px; top: 20px; left: 30px; transform: rotate(-15deg); }
+  .icon-512 .d2 { font-size: 45px; top: 15px; right: 50px; transform: rotate(10deg); }
+  .icon-512 .d3 { font-size: 55px; bottom: 100px; left: 25px; transform: rotate(8deg); }
+  .icon-512 .d4 { font-size: 40px; top: 120px; right: 30px; transform: rotate(-5deg); }
+  .icon-512 .d5 { font-size: 50px; bottom: 30px; left: 120px; transform: rotate(-12deg); }
+  .icon-512 .d6 { font-size: 35px; top: 60px; left: 160px; transform: rotate(18deg); }
+  .icon-512 .d7 { font-size: 42px; bottom: 60px; right: 100px; transform: rotate(-8deg); }
+
+  .icon-192 .d1 { font-size: 22px; top: 8px; left: 12px; transform: rotate(-15deg); }
+  .icon-192 .d2 { font-size: 17px; top: 6px; right: 20px; transform: rotate(10deg); }
+  .icon-192 .d3 { font-size: 20px; bottom: 38px; left: 10px; transform: rotate(8deg); }
+  .icon-192 .d4 { font-size: 15px; top: 45px; right: 12px; transform: rotate(-5deg); }
+  .icon-192 .d5 { font-size: 18px; bottom: 12px; left: 45px; transform: rotate(-12deg); }
+  .icon-192 .d6 { font-size: 13px; top: 22px; left: 60px; transform: rotate(18deg); }
+  .icon-192 .d7 { font-size: 16px; bottom: 22px; right: 38px; transform: rotate(-8deg); }
+
+  /* Main '수' character */
+  .main-char {
+    font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    font-weight: 900;
+    color: #F8F7F4;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 2;
+    line-height: 1;
+  }
+  .icon-512 .main-char { font-size: 280px; margin-top: -15px; }
+  .icon-192 .main-char { font-size: 105px; margin-top: -6px; }
+
+  /* AI badge */
+  .ai-badge {
+    position: absolute;
+    background: linear-gradient(135deg, #e0b88a, #D4A574);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-weight: 800;
+    color: #fff;
+    z-index: 3;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    letter-spacing: -0.5px;
+  }
+  .icon-512 .ai-badge {
+    width: 120px; height: 120px;
+    bottom: 32px; right: 32px;
+    font-size: 46px;
+  }
+  .icon-192 .ai-badge {
+    width: 46px; height: 46px;
+    bottom: 12px; right: 12px;
+    font-size: 17px;
+  }
+
+  /* Subtle inner glow at top */
+  .glow-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+    z-index: 1;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@900&family=Inter:wght@800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- 512x512 -->
+<div class="icon-wrap icon-512" id="icon512">
+  <div class="icon-bg">
+    <div class="glow-top"></div>
+    <span class="math-deco d1">&radic;</span>
+    <span class="math-deco d2">&pi;</span>
+    <span class="math-deco d3">&Sigma;</span>
+    <span class="math-deco d4">&int;</span>
+    <span class="math-deco d5">x&sup2;</span>
+    <span class="math-deco d6">&infin;</span>
+    <span class="math-deco d7">&Delta;</span>
+    <span class="main-char">수</span>
+    <div class="ai-badge">AI</div>
+  </div>
+</div>
+
+<!-- 192x192 -->
+<div class="icon-wrap icon-192" id="icon192">
+  <div class="icon-bg">
+    <div class="glow-top"></div>
+    <span class="math-deco d1">&radic;</span>
+    <span class="math-deco d2">&pi;</span>
+    <span class="math-deco d3">&Sigma;</span>
+    <span class="math-deco d4">&int;</span>
+    <span class="math-deco d5">x&sup2;</span>
+    <span class="math-deco d6">&infin;</span>
+    <span class="math-deco d7">&Delta;</span>
+    <span class="main-char">수</span>
+    <div class="ai-badge">AI</div>
+  </div>
+</div>
+
+</body>
+</html>
