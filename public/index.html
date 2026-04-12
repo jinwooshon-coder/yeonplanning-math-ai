@@ -921,6 +921,27 @@
     .sol-tab.active[data-sol="A"] { border-color: var(--sol-a); color: var(--sol-a); background: rgba(82,110,138,0.06); }
     .sol-tab.active[data-sol="B"] { border-color: var(--sol-b); color: var(--sol-b); background: rgba(122,107,143,0.06); }
     .sol-tab.active[data-sol="C"] { border-color: var(--sol-c); color: var(--sol-c); background: rgba(143,133,107,0.06); }
+    /* 풀이 만족도 별점 */
+    .sol-rating { display:flex; align-items:center; gap:10px; margin-top:14px; padding:12px 14px; background:var(--color-bg); border-radius:var(--radius-sm); }
+    .sol-rating-label { font-size:12px; color:var(--color-text-light); flex-shrink:0; }
+    .sol-rating-stars { display:flex; gap:3px; }
+    .sol-rating-stars button { background:none; border:none; cursor:pointer; padding:2px; line-height:1; font-size:22px; color:#ddd; transition:color .1s, transform .1s; }
+    .sol-rating-stars button:hover, .sol-rating-stars button.filled { color:#f5c518; }
+    .sol-rating-stars button:active { transform:scale(1.2); }
+    .sol-rating-msg { font-size:12px; color:var(--color-text-light); margin-left:4px; }
+    /* AI 추천 배너 */
+    .sol-recommend-banner { display:flex; align-items:flex-start; gap:10px; padding:12px 14px; background:rgba(82,110,138,0.08); border:1px solid rgba(82,110,138,0.2); border-radius:var(--radius-sm); margin-bottom:10px; }
+    .sol-recommend-banner .rb-icon { font-size:18px; flex-shrink:0; margin-top:2px; }
+    .sol-recommend-banner .rb-text { font-size:13px; color:var(--color-text); line-height:1.5; }
+    .sol-recommend-banner .rb-text strong { color:var(--color-primary); }
+    .sol-other-btn { margin-top:8px; background:none; border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:6px 12px; font-size:12px; color:var(--color-text-light); cursor:pointer; font-family:var(--font); transition:all .15s; }
+    .sol-other-btn:hover { border-color:var(--color-primary); color:var(--color-primary); }
+    /* 개념 학습 영역 */
+    .concept-basics-wrap { margin-top:12px; background:rgba(143,133,107,0.06); border:1px solid rgba(143,133,107,0.2); border-radius:var(--radius); padding:14px; }
+    .concept-basics-wrap h4 { font-size:14px; font-weight:700; margin-bottom:6px; color:var(--color-warning); }
+    .concept-basics-content { font-size:13px; line-height:1.8; color:var(--color-text); }
+    .concept-basics-rating { display:flex; align-items:center; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--color-border); }
+    .concept-basics-rating label { font-size:12px; color:var(--color-text-light); }
     .sol-content {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
@@ -2286,11 +2307,16 @@
             </div>
 
             <!-- 풀이법 A/B/C -->
-            <div class="sol-tabs">
+            <div class="sol-recommend-banner" id="sol-recommend-banner" style="display:none;">
+              <div class="rb-icon">💡</div>
+              <div class="rb-text"></div>
+            </div>
+            <div class="sol-tabs" id="sol-tabs">
               <button class="sol-tab active" data-sol="A">풀이 A</button>
               <button class="sol-tab" data-sol="B">풀이 B</button>
               <button class="sol-tab" data-sol="C">풀이 C</button>
             </div>
+            <button class="sol-other-btn" id="sol-other-btn" style="display:none;">다른 풀이법도 보기 ▾</button>
             <div class="sol-content active" id="sol-A"></div>
             <div class="sol-content" id="sol-B"></div>
             <div class="sol-content" id="sol-C"></div>
@@ -3968,13 +3994,51 @@ async function doSolve() {
 
   try {
     const body = { text, student: state.student };
-    if (state.uploadedImage) body.image = state.uploadedImage;
+
+    // 이미지 압축: Netlify 함수 본문 한계(6MB) 초과 방지
+    // 전송 전 3MB 이하로 재압축
+    if (state.uploadedImage) {
+      let imgData = state.uploadedImage;
+      const MAX_BYTES = 3 * 1024 * 1024; // 3MB
+      if (imgData.length > MAX_BYTES) {
+        imgData = await (function(src) {
+          return new Promise(resolve => {
+            const img = new Image();
+            img.onload = () => {
+              let w = img.width, h = img.height;
+              // 최대 1200px로 축소
+              if (w > 1200 || h > 1200) {
+                const ratio = Math.min(1200 / w, 1200 / h);
+                w = Math.round(w * ratio);
+                h = Math.round(h * ratio);
+              }
+              const c = document.createElement('canvas');
+              c.width = w; c.height = h;
+              c.getContext('2d').drawImage(img, 0, 0, w, h);
+              // 품질을 낮춰가며 3MB 이하로
+              let q = 0.72;
+              let out = c.toDataURL('image/jpeg', q);
+              while (out.length > MAX_BYTES && q > 0.3) {
+                q -= 0.1;
+                out = c.toDataURL('image/jpeg', q);
+              }
+              resolve(out);
+            };
+            img.src = src;
+          });
+        })(imgData);
+      }
+      body.image = imgData;
+    }
 
     const res = await fetch('/api/solve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
+    if (!res.ok && res.headers.get('content-type')?.includes('text/html')) {
+      throw new Error('이미지가 너무 큽니다. 더 작은 이미지를 사용해주세요.');
+    }
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
@@ -4077,16 +4141,54 @@ function renderResult(d) {
 
   $('res-answer').innerHTML = d.answer || '-';
 
+  // ── 적응형 풀이 ──
+  const totalProblems = getSavedProblems().length;
+  const adaptiveMode = totalProblems >= 10;
+  const recommended = adaptiveMode ? getRecommendedSol(d.subject) : 'A';
+
+  // 추천 배너 (10문제 이상부터)
+  const recommendBanner = document.getElementById('sol-recommend-banner');
+  if (recommendBanner) {
+    if (adaptiveMode) {
+      const reasonMap = { A: '개념 이해 중심 풀이에서 높은 만족도를 보였습니다', B: '단계적 접근 방식에서 이해도가 높게 나타났습니다', C: '검산·확인 방식을 선호하는 것으로 분석됩니다' };
+      recommendBanner.style.display = 'flex';
+      recommendBanner.querySelector('.rb-text').innerHTML = `🤖 AI 분석 결과, <strong>풀이 ${recommended}</strong>를 추천합니다.<br><span style="font-size:12px;color:var(--color-text-light)">${reasonMap[recommended]}</span>`;
+    } else {
+      const left = 10 - totalProblems;
+      recommendBanner.style.display = 'flex';
+      recommendBanner.querySelector('.rb-text').innerHTML = `문제를 <strong>${left}개</strong> 더 풀면 AI가 나만의 최적 풀이법을 추천해 드려요`;
+    }
+  }
+
   ['A', 'B', 'C'].forEach((lbl) => {
     const sol = d.solutions?.find((s) => s.label === lbl);
     const el = $('sol-' + lbl);
     if (sol) {
-      el.innerHTML = `<h4>${escHtml(sol.title)}</h4><div class="sol-steps">${formatSteps(sol.steps)}</div>`;
+      el.innerHTML = `<h4>${escHtml(sol.title)}</h4><div class="sol-steps">${formatSteps(sol.steps)}</div>` + buildSolRating(lbl);
     } else {
       el.innerHTML = '<p style="color:var(--color-muted)">풀이 없음</p>';
     }
+    // 별점 이벤트 연결
+    el.querySelectorAll('.sol-rating-stars button').forEach(btn => {
+      btn.addEventListener('click', () => onSolRating(lbl, parseInt(btn.dataset.star), d.subject));
+    });
   });
-  activateSolTab('A');
+  activateSolTab(recommended);
+
+  // 다른 풀이 보기 버튼 (적응형 모드)
+  const otherBtn = document.getElementById('sol-other-btn');
+  if (otherBtn) {
+    if (adaptiveMode) {
+      otherBtn.style.display = 'inline-block';
+      otherBtn.onclick = () => {
+        document.querySelector('.sol-tabs').style.display = 'flex';
+        otherBtn.style.display = 'none';
+      };
+    } else {
+      otherBtn.style.display = 'none';
+      document.querySelector('.sol-tabs').style.display = 'flex';
+    }
+  }
 
   const simZone = $('similar-zone');
   simZone.innerHTML = '<div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>유사 문제</div>';
@@ -4143,6 +4245,126 @@ function activateSolTab(lbl) {
   document.querySelectorAll('.sol-tab').forEach((b) => b.classList.toggle('active', b.dataset.sol === lbl));
   document.querySelectorAll('.sol-content').forEach((c) => c.classList.toggle('active', c.id === 'sol-' + lbl));
   renderMath($('sol-' + lbl));
+}
+
+/* ======================================================================
+   풀이 선호도 추적
+====================================================================== */
+const SOL_PREF_KEY = 'yp_sol_prefs';
+
+function getSolPrefs() {
+  try { return JSON.parse(localStorage.getItem(SOL_PREF_KEY) || '{}'); } catch { return {}; }
+}
+
+function getRecommendedSol(subject) {
+  const prefs = getSolPrefs();
+  const subjectPrefs = prefs[subject] || prefs['__global__'] || {};
+  let best = 'A', bestScore = -1;
+  ['A','B','C'].forEach(lbl => {
+    const p = subjectPrefs[lbl];
+    if (p && p.count > 0) {
+      const score = p.totalRating / p.count;
+      if (score > bestScore) { bestScore = score; best = lbl; }
+    }
+  });
+  return best;
+}
+
+function buildSolRating(lbl) {
+  const stars = [1,2,3,4,5].map(n =>
+    `<button data-star="${n}" title="${n}점">★</button>`
+  ).join('');
+  return `<div class="sol-rating">
+    <span class="sol-rating-label">이 풀이법 만족도</span>
+    <div class="sol-rating-stars" id="stars-${lbl}">${stars}</div>
+    <span class="sol-rating-msg" id="rating-msg-${lbl}"></span>
+  </div>`;
+}
+
+function onSolRating(lbl, star, subject) {
+  // 별 UI 업데이트
+  const container = document.getElementById('stars-' + lbl);
+  if (container) {
+    container.querySelectorAll('button').forEach(btn => {
+      btn.classList.toggle('filled', parseInt(btn.dataset.star) <= star);
+    });
+  }
+  const msgEl = document.getElementById('rating-msg-' + lbl);
+  const msgs = ['', '어렵네요 😓', '조금 어려워요 🤔', '괜찮아요 😊', '이해됐어요 👍', '완벽해요 🌟'];
+  if (msgEl) msgEl.textContent = msgs[star] || '';
+
+  // 선호도 저장
+  const prefs = getSolPrefs();
+  ['__global__', subject].forEach(key => {
+    if (!prefs[key]) prefs[key] = {};
+    if (!prefs[key][lbl]) prefs[key][lbl] = { count: 0, totalRating: 0 };
+    prefs[key][lbl].count++;
+    prefs[key][lbl].totalRating += star;
+  });
+  localStorage.setItem(SOL_PREF_KEY, JSON.stringify(prefs));
+
+  // 이해도 낮으면(별 1~2) 개념 기초 학습 제공
+  if (star <= 2) {
+    setTimeout(() => showConceptBasics(lbl), 400);
+  }
+}
+
+async function showConceptBasics(lbl) {
+  const solEl = $('sol-' + lbl);
+  if (!solEl || solEl.querySelector('.concept-basics-wrap')) return;
+  const subject = state.solveResult?.subject || '';
+  const concepts = (state.solveResult?.concepts || []).join(', ');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'concept-basics-wrap';
+  wrap.innerHTML = `<h4>📚 개념부터 다시 잡아볼게요</h4>
+    <div class="concept-basics-content" id="basics-content-${lbl}">
+      <div style="color:var(--color-muted);font-size:13px;">개념 설명을 불러오는 중...</div>
+    </div>
+    <div class="concept-basics-rating">
+      <label>개념 설명 이해됐나요?</label>
+      <div class="sol-rating-stars" id="basics-stars-${lbl}">
+        ${[1,2,3,4,5].map(n=>`<button data-star="${n}" title="${n}점">★</button>`).join('')}
+      </div>
+    </div>`;
+  solEl.appendChild(wrap);
+
+  // 개념 설명 API 호출
+  try {
+    const res = await fetch('/api/solve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: `"${subject}" 단원의 기초 개념을 쉽게 설명해줘. 핵심 개념: ${concepts}. 중학생이 이해할 수 있도록 예시와 함께 단계별로 설명해줘.` }),
+    });
+    const data = await res.json();
+    const basicsEl = document.getElementById('basics-content-' + lbl);
+    if (basicsEl && data.solutions?.[0]) {
+      basicsEl.innerHTML = `<div class="sol-steps">${formatSteps(data.solutions[0].steps)}</div>`;
+      renderMath(basicsEl);
+    }
+  } catch {
+    const basicsEl = document.getElementById('basics-content-' + lbl);
+    if (basicsEl) basicsEl.innerHTML = '<p style="color:var(--color-muted)">설명을 불러오지 못했어요</p>';
+  }
+
+  // 개념 이해도 별점 이벤트
+  const basicsStars = document.getElementById('basics-stars-' + lbl);
+  if (basicsStars) {
+    basicsStars.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const star = parseInt(btn.dataset.star);
+        basicsStars.querySelectorAll('button').forEach(b => b.classList.toggle('filled', parseInt(b.dataset.star) <= star));
+        // 개념 이해도도 선호도에 반영
+        const prefs = getSolPrefs();
+        const key = '__concept__';
+        if (!prefs[key]) prefs[key] = {};
+        if (!prefs[key][subject]) prefs[key][subject] = { count: 0, totalRating: 0 };
+        prefs[key][subject].count++;
+        prefs[key][subject].totalRating += star;
+        localStorage.setItem(SOL_PREF_KEY, JSON.stringify(prefs));
+      });
+    });
+  }
 }
 
 /* ======================================================================
