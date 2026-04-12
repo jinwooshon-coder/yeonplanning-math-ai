@@ -1580,6 +1580,62 @@
     .katex { color: var(--color-text); font-size: 1em; }
     .katex-display { margin: 8px 0; overflow-x: auto; }
 
+    /* ============================ 대시보드 카드 ============================ */
+    .dash-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .dash-card {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .dash-card:active { transform: scale(.97); }
+    .dash-card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(82,110,138,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .dash-card-icon svg { width: 18px; height: 18px; stroke: var(--color-primary); }
+    .dash-card-label {
+      font-size: 11px;
+      color: var(--color-text-light);
+      font-weight: 500;
+      margin-bottom: 3px;
+      letter-spacing: 0.1px;
+    }
+    .dash-card-value {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--color-text);
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .dash-card-hint {
+      font-size: 11px;
+      color: var(--color-muted);
+      line-height: 1.4;
+    }
+    .dash-card.alert .dash-card-icon { background: rgba(143,107,107,0.12); }
+    .dash-card.alert .dash-card-icon svg { stroke: var(--color-error); }
+    .dash-card.alert .dash-card-value { color: var(--color-error); }
+    .dash-card.ready .dash-card-icon { background: rgba(107,143,113,0.12); }
+    .dash-card.ready .dash-card-icon svg { stroke: var(--color-success); }
+    .dash-card.ready .dash-card-value { color: var(--color-success); }
+
     /* ============================ 스크롤바 ============================ */
     #tab-content::-webkit-scrollbar { width: 3px; }
     #tab-content::-webkit-scrollbar-track { background: transparent; }
@@ -2039,6 +2095,46 @@
     <!-- ── 탭 1: 문제 풀이 ── -->
     <div class="tab-panel active" id="panel-solve">
       <div class="tab-container">
+
+        <!-- 대시보드 요약 카드 -->
+        <div class="dash-cards" id="dash-cards">
+          <!-- 취약점 추적 -->
+          <div class="dash-card" id="dash-weakness" onclick="switchSolveTab('weakness')">
+            <div class="dash-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="dash-card-label">취약점 추적</div>
+            <div class="dash-card-value" id="dash-weakness-val">시작 전</div>
+            <div class="dash-card-hint" id="dash-weakness-hint">첫 문제를 올려보세요</div>
+          </div>
+          <!-- 오늘 복습 -->
+          <div class="dash-card" id="dash-review" onclick="switchSolveTab('review')">
+            <div class="dash-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            </div>
+            <div class="dash-card-label">오늘 복습</div>
+            <div class="dash-card-value" id="dash-review-val">대기</div>
+            <div class="dash-card-hint" id="dash-review-hint">학습 시 자동 생성</div>
+          </div>
+          <!-- 담당 선생님 -->
+          <div class="dash-card" id="dash-teacher" onclick="document.getElementById('btn-teacher-open').classList.contains('hidden') ? null : document.getElementById('btn-teacher-open').click()">
+            <div class="dash-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="dash-card-label">담당 선생님</div>
+            <div class="dash-card-value" id="dash-teacher-val">대기</div>
+            <div class="dash-card-hint" id="dash-teacher-hint">로그인 시 연결</div>
+          </div>
+          <!-- 누적 학습 -->
+          <div class="dash-card" id="dash-total" onclick="switchSolveTab('log')">
+            <div class="dash-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="dash-card-label">누적 학습</div>
+            <div class="dash-card-value" id="dash-total-val">0건</div>
+            <div class="dash-card-hint" id="dash-total-hint">쌓일수록 정밀해져요</div>
+          </div>
+        </div>
 
         <!-- 풀이 탭 상단 기능 탭 (영풀과 동일 UI) -->
         <div class="solve-tab-nav">
@@ -3107,6 +3203,7 @@ $('btn-teacher-login').addEventListener('click', () => {
   localStorage.setItem('yp_teacher', JSON.stringify(state.teacher));
   $('teacher-modal').classList.remove('show');
   applyHeaderState();
+  updateDashCards();
 });
 
 $('teacher-code-input').addEventListener('keydown', (e) => {
@@ -3116,15 +3213,86 @@ $('teacher-code-input').addEventListener('keydown', (e) => {
 /* ======================================================================
    풀이 탭 내 서브탭 전환
 ====================================================================== */
+function switchSolveTab(key) {
+  document.querySelectorAll('.solve-tab-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelectorAll('.solve-sub-panel').forEach((p) => p.classList.remove('active'));
+  const btn = document.querySelector('.solve-tab-btn[data-solve="' + key + '"]');
+  if (btn) btn.classList.add('active');
+  const panel = $('solve-sub-' + key);
+  if (panel) panel.classList.add('active');
+  $('tab-content').scrollTop = 0;
+}
+
 document.querySelectorAll('.solve-tab-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.solve-tab-btn').forEach((b) => b.classList.remove('active'));
-    document.querySelectorAll('.solve-sub-panel').forEach((p) => p.classList.remove('active'));
-    btn.classList.add('active');
-    const panel = $('solve-sub-' + btn.dataset.solve);
-    if (panel) panel.classList.add('active');
-  });
+  btn.addEventListener('click', () => switchSolveTab(btn.dataset.solve));
 });
+
+/* ======================================================================
+   대시보드 카드 업데이트
+====================================================================== */
+function updateDashCards() {
+  const problems = (function(){ try { return JSON.parse(localStorage.getItem('yp_bank') || '[]'); } catch { return []; } })();
+  const total = problems.length;
+
+  // 누적 학습
+  $('dash-total-val').textContent = total + '건';
+  if (total > 0) {
+    $('dash-total-hint').textContent = '총 ' + total + '문제 · 계속 쌓이는 중';
+    $('dash-total').classList.add('ready');
+  }
+
+  // 오늘 복습 (selfLevel 1~2 이거나 3일 이상 된 문제)
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const reviewDue = problems.filter(p => {
+    if (!p.createdAt) return false;
+    const daysSince = Math.floor((Date.now() - new Date(p.createdAt)) / 86400000);
+    const lvl = Number(p.selfLevel) || 0;
+    return lvl <= 2 || (lvl === 3 && daysSince >= 3) || (lvl >= 4 && daysSince >= 7);
+  });
+  if (reviewDue.length > 0) {
+    $('dash-review-val').textContent = reviewDue.length + '문제';
+    $('dash-review-hint').textContent = '복습할 문제가 있어요';
+    $('dash-review').classList.add('alert');
+  } else if (total > 0) {
+    $('dash-review-val').textContent = '완료';
+    $('dash-review-hint').textContent = '오늘 복습 다 했어요!';
+    $('dash-review').classList.add('ready');
+  }
+
+  // 취약점 추적
+  if (total >= 5) {
+    const unitCount = {};
+    problems.forEach(p => {
+      if (!p.unit) return;
+      const lvl = Number(p.selfLevel) || 0;
+      if (lvl <= 2) {
+        unitCount[p.unit] = (unitCount[p.unit] || 0) + 1;
+      }
+    });
+    const sorted = Object.entries(unitCount).sort((a, b) => b[1] - a[1]);
+    if (sorted.length > 0) {
+      const [topUnit, cnt] = sorted[0];
+      $('dash-weakness-val').textContent = topUnit.length > 8 ? topUnit.slice(0, 8) + '…' : topUnit;
+      $('dash-weakness-hint').textContent = '틀린 문제 ' + cnt + '개 · 집중 필요';
+      $('dash-weakness').classList.add('alert');
+    } else {
+      $('dash-weakness-val').textContent = '양호';
+      $('dash-weakness-hint').textContent = '취약 단원 없음 · 훌륭해요!';
+      $('dash-weakness').classList.add('ready');
+    }
+  } else if (total > 0) {
+    $('dash-weakness-val').textContent = total + '/5문제';
+    $('dash-weakness-hint').textContent = '5문제 이상이면 분석 시작';
+  }
+
+  // 담당 선생님
+  if (state.teacher) {
+    $('dash-teacher-val').textContent = state.teacher.name;
+    $('dash-teacher-hint').textContent = '연결됨 · 잔여 ' + (state.teacher.remaining ?? '?') + '회';
+    $('dash-teacher').classList.add('ready');
+  }
+}
+updateDashCards();
 
 /* ======================================================================
    하단 네비게이션 탭 전환
@@ -3849,6 +4017,7 @@ async function autoSave(data, text) {
     });
     if (problems.length > 100) problems.length = 100;
     localStorage.setItem('yp_bank', JSON.stringify(problems));
+    updateDashCards();
   } catch {}
 
   // 2) 서버 저장 (백그라운드)
