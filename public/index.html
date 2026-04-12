@@ -3671,7 +3671,7 @@ function loadImageFile(file) {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const MAX = 1500;
+      const MAX = 1200; // 업로드 시점에 1200px 이하로 제한
       let sw = img.naturalWidth, sh = img.naturalHeight;
       const needSwap = orientation === 6 || orientation === 8;
       let cw = needSwap ? sh : sw;
@@ -3690,7 +3690,7 @@ function loadImageFile(file) {
       const dw = sw * ratio, dh = sh * ratio;
       ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
       ctx.restore();
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
       URL.revokeObjectURL(url);
       // 에디터 열기
       window._openImageEditor(dataUrl, function(editedUrl) {
@@ -5216,7 +5216,22 @@ function plannerOnActivate() {
   // done / cancel
   async function finishEdit(){
     await commitCanvas();
-    const dataUrl=canvas.toDataURL('image/jpeg',0.9);
+    // 최대 2MB 이하로 자동 압축
+    const TARGET = 2 * 1024 * 1024;
+    let dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+    if (dataUrl.length > TARGET) {
+      let q = 0.75;
+      while (dataUrl.length > TARGET && q >= 0.4) {
+        // 해상도도 함께 축소
+        const scale = q < 0.6 ? 0.8 : 1;
+        const tc = document.createElement('canvas');
+        tc.width = Math.round(canvas.width * scale);
+        tc.height = Math.round(canvas.height * scale);
+        tc.getContext('2d').drawImage(canvas, 0, 0, tc.width, tc.height);
+        dataUrl = tc.toDataURL('image/jpeg', q);
+        q -= 0.1;
+      }
+    }
     bg.classList.remove('open');
     if(onDoneCb) onDoneCb(dataUrl);
   }
