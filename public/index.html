@@ -2047,6 +2047,9 @@
       .print-sol-label { font-weight: 700; font-size: 10pt; color: #555; margin-bottom: 4pt; }
       .print-sol-content { font-size: 11pt; line-height: 1.7; white-space: pre-wrap; }
       .print-chip { display: inline-block; background: #eee; padding: 2pt 6pt; border-radius: 3pt; font-size: 9pt; margin: 2pt; }
+      .print-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-top: 6pt; }
+      .print-table th, .print-table td { border: 1px solid #999; padding: 4pt 6pt; text-align: left; }
+      .print-table th { background: #eee; font-weight: 700; }
       .print-foot { margin-top: 20pt; padding-top: 8pt; border-top: 1px dashed #999; font-size: 9pt; color: #666; text-align: center; }
     }
   </style>
@@ -3332,66 +3335,121 @@ $('btn-print-upgrade-signup').addEventListener('click', () => {
 });
 
 function preparePrint() {
-  const result = state.solveResult;
-  if (!result) {
-    alert('인쇄할 풀이 결과가 없어요. 먼저 문제를 풀어주세요.');
-    return;
-  }
   const today = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
   const name = state.student?.name || state.teacher?.name || '사용자';
-  $('print-meta').textContent = `출력일: ${today} · 학생: ${name} · 단원: ${result.subject || '-'}`;
 
+  // 현재 활성 서브탭 감지
+  const activePanel = document.querySelector('.solve-sub-panel.active');
+  const tabKey = activePanel?.id?.replace('solve-sub-', '') || 'upload';
+
+  let title = '수풀AI 풀이지';
   let html = '';
 
-  // 문제 정보
-  const stars = '★'.repeat(result.difficulty_ai || 0) + '☆'.repeat(5 - (result.difficulty_ai || 0));
-  html += `<div class="print-section">
-    <h2>문제 정보</h2>
-    <span class="print-chip">학년: ${escHtml(result.grade || '-')}</span>
-    <span class="print-chip">단원: ${escHtml(result.subject || '-')}</span>
-    <span class="print-chip">난이도: ${stars}</span>
-    ${(result.concepts || []).map(c => `<span class="print-chip">${escHtml(c)}</span>`).join('')}
-  </div>`;
-
-  // 정답
-  html += `<div class="print-section">
-    <h2>정답</h2>
-    <div class="print-answer">${escHtml(result.answer || '-')}</div>
-  </div>`;
-
-  // 풀이 A/B/C
-  if (result.solutions?.length) {
-    html += `<div class="print-section"><h2>풀이법</h2>`;
-    result.solutions.forEach(sol => {
-      html += `<div class="print-sol">
-        <div class="print-sol-label">풀이 ${escHtml(sol.label)} — ${escHtml(sol.title || '')}</div>
-        <div class="print-sol-content">${escHtml(sol.steps || '')}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // 유사 문제
-  if (result.similar?.length) {
-    html += `<div class="print-section"><h2>유사 문제</h2>`;
-    result.similar.forEach(q => {
-      html += `<div class="print-sol">
-        <div class="print-sol-label">문제 ${escHtml(String(q.num))}</div>
-        <div class="print-sol-content">${escHtml(q.question || '')}</div>
-        <div style="margin-top:4pt;font-size:10pt;color:#444;">정답: ${escHtml(q.answer || '')}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // 다음 단원
-  if (result.next_concept) {
+  /* ── 오답 풀이 탭 ── */
+  if (tabKey === 'upload') {
+    const result = state.solveResult;
+    if (!result) { alert('인쇄할 풀이 결과가 없어요. 먼저 문제를 풀어주세요.'); return; }
+    title = '수풀AI 풀이지';
+    const stars = '★'.repeat(result.difficulty_ai || 0) + '☆'.repeat(5 - (result.difficulty_ai || 0));
     html += `<div class="print-section">
-      <h2>다음 단원 연결</h2>
-      <div class="print-sol-content">${escHtml(result.next_concept)}</div>
+      <h2>문제 정보</h2>
+      <span class="print-chip">학년: ${escHtml(result.grade || '-')}</span>
+      <span class="print-chip">단원: ${escHtml(result.subject || '-')}</span>
+      <span class="print-chip">난이도: ${stars}</span>
+      ${(result.concepts || []).map(c => `<span class="print-chip">${escHtml(c)}</span>`).join('')}
     </div>`;
+    html += `<div class="print-section"><h2>정답</h2>
+      <div class="print-answer">${escHtml(result.answer || '-')}</div></div>`;
+    if (result.solutions?.length) {
+      html += `<div class="print-section"><h2>풀이법</h2>`;
+      result.solutions.forEach(sol => {
+        html += `<div class="print-sol">
+          <div class="print-sol-label">풀이 ${escHtml(sol.label)} — ${escHtml(sol.title || '')}</div>
+          <div class="print-sol-content">${escHtml(sol.steps || '')}</div></div>`;
+      });
+      html += `</div>`;
+    }
+    if (result.similar?.length) {
+      html += `<div class="print-section"><h2>유사 문제</h2>`;
+      result.similar.forEach(q => {
+        html += `<div class="print-sol">
+          <div class="print-sol-label">문제 ${escHtml(String(q.num))}</div>
+          <div class="print-sol-content">${escHtml(q.question || '')}</div>
+          <div style="margin-top:4pt;font-size:10pt;color:#444;">정답: ${escHtml(q.answer || '')}</div></div>`;
+      });
+      html += `</div>`;
+    }
+    if (result.next_concept) {
+      html += `<div class="print-section"><h2>다음 단원 연결</h2>
+        <div class="print-sol-content">${escHtml(result.next_concept)}</div></div>`;
+    }
+
+  /* ── 공식 모음 탭 ── */
+  } else if (tabKey === 'formula') {
+    title = '수풀AI 공식 모음표';
+    const items = document.querySelectorAll('#formula-list .card');
+    if (!items.length) { alert('인쇄할 공식이 없어요.'); return; }
+    html += `<div class="print-section"><h2>자주 쓰는 수학 공식</h2>`;
+    items.forEach(card => {
+      const name = card.querySelector('strong')?.textContent || '';
+      const formula = card.querySelector('div')?.textContent || '';
+      html += `<div class="print-sol">
+        <div class="print-sol-label">${escHtml(name)}</div>
+        <div class="print-sol-content" style="font-family:'Times New Roman',serif;">${escHtml(formula)}</div></div>`;
+    });
+    html += `</div>`;
+
+  /* ── 취약점 분석 탭 ── */
+  } else if (tabKey === 'weakness') {
+    title = '수풀AI 취약점 분석';
+    const inner = $('weakness-result')?.innerHTML || '';
+    if (!inner.trim()) { alert('분석할 데이터가 없어요. 문제를 10개 이상 풀어주세요.'); return; }
+    html += `<div class="print-section"><h2>취약점 분석 결과</h2>${inner}</div>`;
+
+  /* ── 연습문제 탭 ── */
+  } else if (tabKey === 'practice') {
+    title = '수풀AI 연습문제지';
+    const inner = $('practice-result')?.innerHTML || '';
+    if (!inner.trim()) { alert('생성된 연습문제가 없어요. 먼저 연습문제를 생성해주세요.'); return; }
+    html += `<div class="print-section"><h2>AI 연습문제</h2>${inner}</div>`;
+
+  /* ── 오답 복습 탭 ── */
+  } else if (tabKey === 'review') {
+    title = '수풀AI 오답 복습';
+    const problems = (() => { try { return JSON.parse(localStorage.getItem('yp_bank') || '[]'); } catch { return []; } })();
+    const wrong = problems.filter(p => p.selfLevel >= 4);
+    if (!wrong.length) { alert('복습할 오답이 없어요.'); return; }
+    html += `<div class="print-section"><h2>오답 복습 목록</h2>
+      <table class="print-table"><thead><tr><th>#</th><th>단원</th><th>난이도</th><th>날짜</th></tr></thead><tbody>`;
+    wrong.forEach((p, i) => {
+      html += `<tr>
+        <td>${i + 1}</td>
+        <td>${escHtml(p.subject || '-')}</td>
+        <td>${'★'.repeat(p.difficulty_ai || 0)}</td>
+        <td>${escHtml(p.date ? p.date.slice(0,10) : '-')}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+
+  /* ── 학습 기록 탭 ── */
+  } else if (tabKey === 'log') {
+    title = '수풀AI 학습 기록';
+    const problems = (() => { try { return JSON.parse(localStorage.getItem('yp_bank') || '[]'); } catch { return []; } })();
+    if (!problems.length) { alert('학습 기록이 없어요.'); return; }
+    html += `<div class="print-section"><h2>학습 기록 (최근 ${Math.min(problems.length, 30)}건)</h2>
+      <table class="print-table"><thead><tr><th>#</th><th>날짜</th><th>단원</th><th>난이도</th><th>자가평가</th></tr></thead><tbody>`;
+    problems.slice(-30).reverse().forEach((p, i) => {
+      html += `<tr>
+        <td>${i + 1}</td>
+        <td>${escHtml(p.date ? p.date.slice(0,10) : '-')}</td>
+        <td>${escHtml(p.subject || '-')}</td>
+        <td>${'★'.repeat(p.difficulty_ai || 0)}</td>
+        <td>${p.selfLevel === 1 ? '쉬움' : p.selfLevel === 3 ? '보통' : p.selfLevel === 5 ? '어려움' : '-'}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
   }
 
+  document.querySelector('#printArea h1').textContent = title;
+  $('print-meta').textContent = `출력일: ${today} · 학생: ${name}`;
   $('print-body').innerHTML = html;
   setTimeout(() => window.print(), 120);
 }
