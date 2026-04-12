@@ -3425,7 +3425,7 @@ function quickLoadImage(file) {
         ctx.drawImage(img, -sw * ratio / 2, -sh * ratio / 2, sw * ratio, sh * ratio);
         ctx.restore();
         URL.revokeObjectURL(url);
-        resolve(canvas.toDataURL('image/jpeg', 0.85));
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
       };
       img.src = url;
     });
@@ -4089,7 +4089,7 @@ function loadImageFile(file) {
       const dw = sw * ratio, dh = sh * ratio;
       ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
       ctx.restore();
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
       URL.revokeObjectURL(url);
       // 에디터 열기
       window._openImageEditor(dataUrl, function(editedUrl) {
@@ -4171,7 +4171,7 @@ function reRenderRotated() {
     ctx.translate(cw / 2, ch / 2);
     ctx.rotate((r * Math.PI) / 180);
     ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
-    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.85);
+    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.82);
     $('preview-img').src = state.uploadedImage;
     $('preview-img').style.transform = `scale(${imgScale})`;
     imgRotation = 0;
@@ -4330,7 +4330,7 @@ function applyCrop() {
     canvas.height = Math.round(sh);
     canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
 
-    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.9);
+    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.82);
     $('preview-img').src = state.uploadedImage;
     imgScale = 1; imgRotation = 0;
     applyImgTransform();
