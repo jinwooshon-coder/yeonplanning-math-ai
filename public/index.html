@@ -599,6 +599,25 @@
       line-height: 1.5;
     }
 
+    /* ── 가로 화면(랜드스케이프) / 패드·PC (≥600px 또는 landscape) ── */
+    @media (min-width: 600px), (orientation: landscape) {
+      .upload-zone { padding: 10px 0 4px; }
+      .upload-ring { width: 300px; height: 300px; }
+      .upload-cam-icon { width: 60px; height: 60px; }
+      .upload-cam-icon svg { width: 30px; height: 30px; }
+      .upload-title { font-size: 16px; }
+      .upload-sub   { font-size: 13px; }
+    }
+
+    /* ── PC 전용 (≥900px) ── */
+    @media (min-width: 900px) {
+      .upload-zone { padding: 8px 0 4px; }
+      .upload-ring { width: 340px; height: 340px; }
+      .upload-cam-icon { width: 68px; height: 68px; }
+      .upload-cam-icon svg { width: 34px; height: 34px; }
+      .upload-ring-wrap { max-width: 400px; }
+    }
+
     /* 이미지 미리보기 */
     .preview-zone {
       margin: 16px 0;
