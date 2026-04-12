@@ -1,6 +1,9 @@
 // netlify/functions/solve.js
 // 수학 문제 AI 풀이 — Claude Opus 호출
 
+// SUPUL_CLAUDE_KEY: Netlify 대시보드에 설정 (ANTHROPIC_API_KEY와 이름 충돌 방지)
+const CLAUDE_API_KEY = process.env.SUPUL_CLAUDE_KEY || process.env.ANTHROPIC_API_KEY;
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -20,6 +23,15 @@ exports.handler = async (event) => {
         statusCode: 400,
         headers,
         body: JSON.stringify({ error: '문제 텍스트나 이미지가 필요해요' }),
+      };
+    }
+
+    // 이미지 크기 체크 (base64 데이터가 4MB 초과면 거부)
+    if (image && image.length > 4 * 1024 * 1024) {
+      return {
+        statusCode: 413,
+        headers,
+        body: JSON.stringify({ error: '이미지가 너무 큽니다. 더 작은 사진을 사용해 주세요.' }),
       };
     }
 
@@ -95,7 +107,7 @@ exports.handler = async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': CLAUDE_API_KEY,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({

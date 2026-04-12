@@ -143,17 +143,43 @@ if (saved) {
 }
 
 // === Image Attach ===
+// 이미지 압축 & 리사이즈 (핸드폰 고해상도 사진 → API 전송 가능 크기로)
+function compressImage(dataUrl, maxWidth = 1280, quality = 0.75) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxWidth) {
+        h = Math.round(h * maxWidth / w);
+        w = maxWidth;
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
 function loadImageFile(file) {
   if (!file || !file.type.startsWith('image/')) return;
 
-  if (file.size > 10 * 1024 * 1024) {
-    alert('이미지 크기는 10MB 이하여야 합니다.');
+  if (file.size > 20 * 1024 * 1024) {
+    alert('이미지 크기는 20MB 이하여야 합니다.');
     return;
   }
 
   const reader = new FileReader();
-  reader.onload = (ev) => {
-    attachedImage = ev.target.result;
+  reader.onload = async (ev) => {
+    // 원본이 1MB 초과면 압축, 아니면 그대로 사용
+    let dataUrl = ev.target.result;
+    if (file.size > 1 * 1024 * 1024) {
+      dataUrl = await compressImage(dataUrl, 1280, 0.75);
+    }
+    attachedImage = dataUrl;
     previewImg.src = attachedImage;
     imagePreview.classList.remove('hidden');
     updateSolveBtn();
@@ -297,17 +323,24 @@ async function handleSolve() {
   loadingOverlay.classList.remove('hidden');
   solveBtn.disabled = true;
 
+  // 타임아웃 설정 (55초 — Netlify 함수 60초 제한보다 약간 짧게)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 55000);
+
   try {
     // 1. Get answer from Claude
     const solveRes = await fetch(`${API}/solve`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         text: question,
         image: attachedImage,
         student: currentStudent.id
       })
     });
+
+    clearTimeout(timeoutId);
 
     let solveData;
     const ct = solveRes.headers.get('content-type') || '';
@@ -337,7 +370,12 @@ async function handleSolve() {
     saveResult(question, solveData.answer);
 
   } catch (err) {
-    alert(err.message);
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      alert('풀이 시간이 초과되었습니다. 다시 시도해 주세요.\n(사진이 너무 크면 더 작은 사진을 사용해 보세요)');
+    } else {
+      alert(err.message);
+    }
   } finally {
     loadingOverlay.classList.add('hidden');
     solveBtn.disabled = false;

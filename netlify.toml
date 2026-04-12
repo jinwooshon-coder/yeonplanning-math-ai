@@ -6,7 +6,7 @@
   node_bundler = "esbuild"
 
 [functions.solve]
-  timeout = 30
+  timeout = 60
 
 [functions.payment-confirm]
   timeout = 15
