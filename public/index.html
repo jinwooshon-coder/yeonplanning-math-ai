@@ -2015,6 +2015,54 @@
     .focus-stat-val { font-size: 22px; font-weight: 800; color: var(--color-primary); line-height: 1; }
     .focus-stat-label { font-size: 11px; color: var(--color-text-light); margin-top: 3px; }
 
+    /* ── 다중 페이지 사진 추가 (최대 4장) ── */
+    .multi-strip {
+      margin: 0 16px 10px;
+      padding: 10px 12px;
+      background: var(--color-bg);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    .multi-strip-label {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: var(--color-text-light); margin-bottom: 8px;
+    }
+    .multi-strip-label strong { color: var(--color-primary); }
+    .multi-strip-row { display: flex; gap: 8px; align-items: center; overflow-x: auto; padding-bottom: 2px; }
+    .multi-thumb {
+      position: relative; flex-shrink: 0;
+      width: 60px; height: 60px;
+      border-radius: var(--radius-xs);
+      overflow: hidden;
+      border: 2px solid var(--color-border);
+    }
+    .multi-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb-rm {
+      position: absolute; top: 2px; right: 2px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(0,0,0,0.6); color: #fff;
+      border: none; cursor: pointer; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; line-height: 1;
+    }
+    .pg-num {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.45); color: #fff;
+      font-size: 9px; text-align: center; padding: 1px 0;
+    }
+    .multi-add-btn {
+      flex-shrink: 0; width: 60px; height: 60px;
+      border-radius: var(--radius-xs);
+      border: 2px dashed var(--color-border);
+      background: transparent; color: var(--color-text-light);
+      cursor: pointer; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2px; font-size: 10px; font-family: var(--font);
+      transition: all .2s; padding: 0;
+    }
+    .multi-add-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .multi-add-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
     /* ═══════════ 인쇄 전용 (영풀 gangdongwon.html 방식) ═══════════ */
     #printArea { display: none; }
 
@@ -2288,6 +2336,7 @@
         <div class="upload-zone" id="upload-zone">
           <input type="file" id="file-input" accept="image/*" style="display:none;" />
           <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none;" />
+          <input type="file" id="file-add" accept="image/*" multiple style="display:none;" />
 
           <div class="upload-ring-wrap">
             <div class="upload-ring" id="upload-ring">
@@ -2370,6 +2419,19 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
             그리기
           </button>
+          <button class="img-ctrl-btn" id="btn-add-page" style="color:var(--color-primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            페이지 추가
+          </button>
+        </div>
+
+        <!-- 다중 페이지 썸네일 스트립 -->
+        <div class="multi-strip hidden" id="multi-strip">
+          <div class="multi-strip-label">
+            <span>페이지 선택 — <strong id="multi-count">1</strong>/4장</span>
+            <span style="font-size:10px;color:var(--color-muted);">최대 4장 · 3장 권장</span>
+          </div>
+          <div class="multi-strip-row" id="multi-strip-row"></div>
         </div>
 
         <!-- 텍스트 입력 + 풀기 버튼 -->
@@ -3005,11 +3067,13 @@ const state = {
   student: null,
   teacher: null,
   uploadedImage: null,
+  additionalImages: [],   // 추가 페이지 (2~4번째 사진)
   solveResult: null,
   selfLevel: null,
   startTime: null,
   solveTab: 'A',
 };
+const MAX_PAGES = 4;
 
 /* ======================================================================
    XSS 보호
@@ -3332,6 +3396,101 @@ $('btn-print-upgrade-close').addEventListener('click', () => $('print-upgrade-mo
 $('btn-print-upgrade-signup').addEventListener('click', () => {
   $('print-upgrade-modal').classList.remove('show');
   $('signup-modal').classList.add('show');
+});
+
+/* ======================================================================
+   다중 페이지 사진 추가
+====================================================================== */
+
+// 에디터 없이 빠른 리사이즈/회전 보정
+function quickLoadImage(file) {
+  return new Promise((resolve) => {
+    readOrientation(file).then((orientation) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1500;
+        let sw = img.naturalWidth, sh = img.naturalHeight;
+        const needSwap = orientation === 6 || orientation === 8;
+        let cw = needSwap ? sh : sw, ch = needSwap ? sw : sh;
+        const ratio = Math.min(MAX / cw, MAX / ch, 1);
+        cw = Math.round(cw * ratio); ch = Math.round(ch * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.save(); ctx.translate(cw / 2, ch / 2);
+        if (orientation === 3) ctx.rotate(Math.PI);
+        else if (orientation === 6) ctx.rotate(Math.PI / 2);
+        else if (orientation === 8) ctx.rotate(-Math.PI / 2);
+        ctx.drawImage(img, -sw * ratio / 2, -sh * ratio / 2, sw * ratio, sh * ratio);
+        ctx.restore();
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = url;
+    });
+  });
+}
+
+function renderMultiStrip() {
+  const total = 1 + state.additionalImages.length;
+  $('multi-count').textContent = total;
+  let html = '';
+  // 1번 사진 (메인, 삭제 불가 — 전체 × 버튼으로 삭제)
+  html += `<div class="multi-thumb">
+    <img src="${state.uploadedImage}" alt="p1">
+    <span class="pg-num">1</span>
+  </div>`;
+  state.additionalImages.forEach((src, i) => {
+    html += `<div class="multi-thumb">
+      <img src="${src}" alt="p${i + 2}">
+      <button class="thumb-rm" data-idx="${i}">✕</button>
+      <span class="pg-num">${i + 2}</span>
+    </div>`;
+  });
+  if (total < MAX_PAGES) {
+    html += `<button class="multi-add-btn" id="btn-add-inline">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      추가
+    </button>`;
+  }
+  $('multi-strip-row').innerHTML = html;
+  // 개별 삭제
+  $('multi-strip-row').querySelectorAll('.thumb-rm').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.additionalImages.splice(parseInt(btn.dataset.idx), 1);
+      if (!state.additionalImages.length) $('multi-strip').classList.add('hidden');
+      else renderMultiStrip();
+    });
+  });
+  // 인라인 추가 버튼
+  const addInline = $('btn-add-inline');
+  if (addInline) addInline.addEventListener('click', () => $('file-add').click());
+  $('multi-strip').classList.remove('hidden');
+  // 상단 btn-add-page 텍스트 업데이트
+  $('btn-add-page').querySelector('svg').nextSibling.textContent = ` 페이지 추가 (${total}/${MAX_PAGES})`;
+}
+
+// 페이지 추가 버튼
+$('btn-add-page').addEventListener('click', () => {
+  if (!state.uploadedImage) return;
+  if (1 + state.additionalImages.length >= MAX_PAGES) {
+    alert(`최대 ${MAX_PAGES}장까지 추가할 수 있어요. (3장 권장)`);
+    return;
+  }
+  $('file-add').click();
+});
+
+$('file-add').addEventListener('change', async (e) => {
+  const remaining = MAX_PAGES - 1 - state.additionalImages.length;
+  const files = Array.from(e.target.files).slice(0, remaining);
+  for (const file of files) {
+    const dataUrl = await quickLoadImage(file);
+    state.additionalImages.push(dataUrl);
+  }
+  renderMultiStrip();
+  $('file-add').value = '';
 });
 
 function preparePrint() {
@@ -3887,8 +4046,11 @@ document.addEventListener('paste', (e) => {
 
 $('btn-remove-img').addEventListener('click', () => {
   state.uploadedImage = null;
+  state.additionalImages = [];
   $('preview-zone').classList.add('hidden');
   $('img-controls').classList.add('hidden');
+  $('multi-strip').classList.add('hidden');
+  $('multi-strip-row').innerHTML = '';
   uploadZone.classList.remove('hidden');
   fileInput.value = '';
   fileCamera.value = '';
@@ -4206,6 +4368,8 @@ async function doSolve() {
     alert('문제 사진을 업로드하거나 문제를 입력해주세요!');
     return;
   }
+  // 다중 이미지 배열 (1장이면 단일, 2장+ 이면 배열로 전송)
+  const allImages = [state.uploadedImage, ...state.additionalImages].filter(Boolean);
   if (!canUseTrial()) {
     showLimitModal();
     return;
@@ -4234,7 +4398,8 @@ async function doSolve() {
 
   try {
     const body = { text, student: state.student };
-    if (state.uploadedImage) body.image = state.uploadedImage;
+    if (allImages.length > 1) body.images = allImages;
+    else if (allImages.length === 1) body.image = allImages[0];
 
     const res = await fetch('/api/solve', {
       method: 'POST',
