@@ -551,43 +551,38 @@
       width: 100%;
       max-width: 320px;
     }
-    @keyframes rotateBorder { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes dashMove { to { stroke-dashoffset: -40; } }
     .upload-ring {
       position: relative;
-      width: 260px;
-      height: 260px;
-      border-radius: 50%;
-      border: 2px solid var(--color-primary);
+      width: 100%;
+      max-width: 420px;
+      height: auto;
+      border-radius: 20px;
+      border: 2px dashed rgba(82,110,138,0.4);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 8px;
-      padding: 24px;
+      gap: 10px;
+      padding: 32px 24px 24px;
       transition: border-color .2s, background .2s;
+      background: rgba(82,110,138,0.03);
     }
-    .upload-orbit-ring {
-      position: absolute;
-      inset: -14px;
-      border-radius: 50%;
-      pointer-events: none;
-      animation: rotateBorder 18s linear infinite;
-    }
-    .upload-orbit-ring svg { width: 100%; height: 100%; display: block; }
+    .upload-orbit-ring { display: none; }
     .upload-ring.dragover {
-      border-color: var(--color-primary-dark);
-      background: rgba(82,110,138,0.05);
+      border-color: var(--color-primary);
+      background: rgba(82,110,138,0.07);
     }
     .upload-cam-icon {
-      width: 48px;
-      height: 48px;
-      background: rgba(82,110,138,0.08);
-      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      background: rgba(82,110,138,0.10);
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(82,110,138,0.15);
+      border: 1px solid rgba(82,110,138,0.18);
     }
     .upload-cam-icon svg { width: 24px; height: 24px; stroke: var(--color-primary); }
     .upload-title {
@@ -646,10 +641,10 @@
     /* ── PC 전용 (≥900px) ── */
     @media (min-width: 900px) {
       .upload-zone { padding: 8px 0 4px; }
-      .upload-ring { width: 340px; height: 340px; }
-      .upload-cam-icon { width: 68px; height: 68px; }
-      .upload-cam-icon svg { width: 34px; height: 34px; }
-      .upload-ring-wrap { max-width: 400px; }
+      .upload-ring { max-width: 480px; padding: 40px 32px 28px; }
+      .upload-cam-icon { width: 64px; height: 64px; border-radius: 16px; }
+      .upload-cam-icon svg { width: 32px; height: 32px; }
+      .upload-ring-wrap { max-width: 500px; }
     }
 
     /* 이미지 미리보기 */
@@ -856,27 +851,38 @@
     }
 
     /* 로딩 */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes loadingPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
     .solve-loading {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px 0;
-      gap: 14px;
+      padding: 48px 24px;
+      gap: 20px;
+      background: linear-gradient(135deg, rgba(82,110,138,0.06) 0%, rgba(82,110,138,0.02) 100%);
+      border-radius: 20px;
+      border: 1.5px solid rgba(82,110,138,0.15);
+      margin: 8px 0;
     }
     .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid var(--color-border);
+      width: 56px;
+      height: 56px;
+      border: 4px solid rgba(82,110,138,0.15);
       border-top-color: var(--color-primary);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.9s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text {
-      font-size: 14px;
+      font-size: 16px;
+      color: var(--color-primary);
+      font-weight: 700;
+      animation: loadingPulse 2s ease-in-out infinite;
+    }
+    .loading-sub {
+      font-size: 12px;
       color: var(--color-text-light);
-      font-weight: 500;
+      margin-top: -10px;
     }
 
     /* 드래그 오버레이 */
@@ -2484,6 +2490,7 @@
         <div class="solve-loading hidden" id="loading-zone">
           <div class="loading-spinner"></div>
           <div class="loading-text" id="loading-text">AI가 문제를 분석하고 있어요...</div>
+          <div class="loading-sub">잠시만 기다려 주세요 (5~10초)</div>
         </div>
 
         <!-- 풀이 결과 -->
@@ -4424,6 +4431,7 @@ async function doSolve() {
   $('result-zone').classList.add('hidden');
   $('loading-zone').classList.remove('hidden');
   $('btn-solve').disabled = true;
+  setTimeout(() => $('loading-zone').scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
 
   // 이해도 체크 초기화
   $('simpler-request').style.display = 'none';
