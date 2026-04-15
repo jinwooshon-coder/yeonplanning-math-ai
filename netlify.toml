@@ -2,22 +2,21 @@
   publish = "public"
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "20"
+
 [functions]
   node_bundler = "esbuild"
 
 [functions.solve]
   timeout = 60
 
-[functions.payment-confirm]
-  timeout = 15
-
-[functions.signup]
-  timeout = 15
 
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+  force = true
 
 # 결제 성공/실패 → payment-success.html (내부에서 분기 처리)
 [[redirects]]
