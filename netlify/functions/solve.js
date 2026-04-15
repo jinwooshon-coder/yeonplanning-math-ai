@@ -62,12 +62,16 @@ exports.handler = async (event) => {
     const multiPageNote = imageList.length > 1
       ? `(이미지 ${imageList.length}장이 첨부되어 있습니다. 연속된 교과서 페이지로 간주하고 문제를 파악해 주세요.)\n\n`
       : '';
-    userContent.push({
-      type: 'text',
-      text: text
-        ? `${multiPageNote}다음 수학 문제를 풀어주세요:\n\n${text}`
-        : `${multiPageNote}이미지의 수학 문제를 풀어주세요.`,
-    });
+    // 이미지가 있으면 text는 학생 메모, 없으면 text가 문제 본문
+    let promptText;
+    if (imageList.length > 0) {
+      promptText = text
+        ? `${multiPageNote}이미지의 수학 문제를 풀어주세요.\n\n[학생 메모] ${text}`
+        : `${multiPageNote}이미지의 수학 문제를 풀어주세요.`;
+    } else {
+      promptText = `다음 수학 문제를 풀어주세요:\n\n${text}`;
+    }
+    userContent.push({ type: 'text', text: promptText });
 
     // ── Claude API 호출 ──
     const SYSTEM_PROMPT = `당신은 대한민국 최고의 수학 선생님입니다.

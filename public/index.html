@@ -882,20 +882,20 @@
 
     /* ── 가로 화면(랜드스케이프) / 패드·PC (≥560px 또는 landscape) ── */
     @media (min-width: 560px), (orientation: landscape) {
-      .upload-zone { padding: 8px 0 4px; }
-      .upload-ring-wrap { max-width: 680px; }
+      .upload-zone { padding: 8px 0 4px; justify-content: stretch; }
+      .upload-ring-wrap { max-width: 100%; width: 100%; }
       .upload-ring {
-        max-width: 680px;
+        max-width: 100%;
         flex-direction: row;
         text-align: left;
         gap: 20px;
-        padding: 22px 28px;
+        padding: 20px 28px;
         align-items: center;
         justify-content: center;
       }
       .upload-cam-icon { width: 64px; height: 64px; flex-shrink: 0; }
       .upload-cam-icon svg { width: 30px; height: 30px; }
-      .upload-content { align-items: flex-start; gap: 4px; }
+      .upload-content { align-items: flex-start; gap: 4px; flex: 1; }
       .upload-title { font-size: 16px; }
       .upload-sub   { font-size: 13px; }
       .upload-action-btns { margin-top: 6px; }
@@ -904,10 +904,9 @@
     /* ── PC 전용 (≥900px) ── */
     @media (min-width: 900px) {
       .upload-zone { padding: 6px 0 4px; }
-      .upload-ring { max-width: 720px; padding: 24px 36px; gap: 24px; }
+      .upload-ring { padding: 22px 40px; gap: 28px; }
       .upload-cam-icon { width: 72px; height: 72px; border-radius: 18px; }
       .upload-cam-icon svg { width: 34px; height: 34px; }
-      .upload-ring-wrap { max-width: 740px; }
     }
 
     /* 이미지 미리보기 */
@@ -2757,9 +2756,9 @@
           <div class="multi-strip-row" id="multi-strip-row"></div>
         </div>
 
-        <!-- 텍스트 입력 + 풀기 버튼 -->
+        <!-- 학생 메모 + 풀기 버튼 -->
         <div class="solve-input-row">
-          <textarea class="solve-textarea" id="problem-text" placeholder="또는 문제를 직접 입력하세요..."></textarea>
+          <textarea class="solve-textarea" id="problem-text" placeholder="이 문제에서 모르는 부분이나 선생님께 특별히 물어보고 싶은 점을 적어 주세요 (선택사항)"></textarea>
           <button class="btn-solve" id="btn-solve">풀기</button>
         </div>
 
