@@ -201,6 +201,40 @@
       border-radius: 10px;
     }
 
+    /* 영풀 방식 아이콘 버튼 */
+    .btn-header-icon {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-light);
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .2s;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .btn-header-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-header-icon:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    .btn-header-icon.teacher-icon:hover { border-color: var(--color-warning); color: var(--color-warning); }
+
+    /* 넓은 화면 — 대시보드 카드 4열 1행 (업로드 링 노출용) */
+    @media (min-width: 600px) {
+      .dash-cards {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .dash-card { padding: 10px 12px 8px; }
+      .dash-card-icon { width: 28px; height: 28px; margin-bottom: 6px; }
+      .dash-card-icon svg { width: 14px; height: 14px; }
+      .dash-card-value { font-size: 14px; }
+      .dash-card-hint { font-size: 10px; }
+    }
+
     /* ============================ 하단 네비게이션 ============================ */
     #bottom-nav {
       display: flex;
@@ -597,6 +631,25 @@
       text-align: center;
       margin: 8px 0 0;
       line-height: 1.5;
+    }
+
+    /* ── 가로 화면(랜드스케이프) / 패드·PC (≥600px 또는 landscape) ── */
+    @media (min-width: 600px), (orientation: landscape) {
+      .upload-zone { padding: 10px 0 4px; }
+      .upload-ring { width: 300px; height: 300px; }
+      .upload-cam-icon { width: 60px; height: 60px; }
+      .upload-cam-icon svg { width: 30px; height: 30px; }
+      .upload-title { font-size: 16px; }
+      .upload-sub   { font-size: 13px; }
+    }
+
+    /* ── PC 전용 (≥900px) ── */
+    @media (min-width: 900px) {
+      .upload-zone { padding: 8px 0 4px; }
+      .upload-ring { width: 340px; height: 340px; }
+      .upload-cam-icon { width: 68px; height: 68px; }
+      .upload-cam-icon svg { width: 34px; height: 34px; }
+      .upload-ring-wrap { max-width: 400px; }
     }
 
     /* 이미지 미리보기 */
@@ -1997,9 +2050,129 @@
     .focus-stat-item { text-align: center; }
     .focus-stat-val { font-size: 22px; font-weight: 800; color: var(--color-primary); line-height: 1; }
     .focus-stat-label { font-size: 11px; color: var(--color-text-light); margin-top: 3px; }
+
+    /* ── 다중 페이지 사진 추가 (최대 4장) ── */
+    .multi-strip {
+      margin: 0 16px 10px;
+      padding: 10px 12px;
+      background: var(--color-bg);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    .multi-strip-label {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: var(--color-text-light); margin-bottom: 8px;
+    }
+    .multi-strip-label strong { color: var(--color-primary); }
+    .multi-strip-row { display: flex; gap: 8px; align-items: center; overflow-x: auto; padding-bottom: 2px; }
+    .multi-thumb {
+      position: relative; flex-shrink: 0;
+      width: 60px; height: 60px;
+      border-radius: var(--radius-xs);
+      overflow: hidden;
+      border: 2px solid var(--color-border);
+    }
+    .multi-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb-rm {
+      position: absolute; top: 2px; right: 2px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(0,0,0,0.6); color: #fff;
+      border: none; cursor: pointer; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; line-height: 1;
+    }
+    .pg-num {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.45); color: #fff;
+      font-size: 9px; text-align: center; padding: 1px 0;
+    }
+    .multi-add-btn {
+      flex-shrink: 0; width: 60px; height: 60px;
+      border-radius: var(--radius-xs);
+      border: 2px dashed var(--color-border);
+      background: transparent; color: var(--color-text-light);
+      cursor: pointer; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2px; font-size: 10px; font-family: var(--font);
+      transition: all .2s; padding: 0;
+    }
+    .multi-add-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .multi-add-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+    /* ═══════════ 인쇄 전용 (영풀 gangdongwon.html 방식) ═══════════ */
+    #printArea { display: none; }
+
+    @media print {
+      @page { size: A4; margin: 15mm; }
+      body { background: #fff !important; color: #000 !important; overflow: visible !important; }
+
+      /* UI 숨기기 */
+      #app-header, #bottom-nav, .install-banner,
+      .dash-cards, .solve-tab-nav,
+      .upload-zone, .preview-zone, .img-controls,
+      #loading-zone, .self-eval, .understand-check,
+      .modal-overlay { display: none !important; }
+
+      /* 레이아웃 풀기 */
+      #app, html, body { height: auto !important; overflow: visible !important; }
+      #tab-content, #panel-solve, .tab-container { overflow: visible !important; display: block !important; }
+
+      /* printArea 노출 */
+      #printArea { display: block !important; }
+
+      /* 인쇄 스타일 */
+      .print-header { border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 16px; }
+      .print-header h1 { font-size: 18pt; margin: 0; color: #000; }
+      .print-header .ph-meta { font-size: 9pt; color: #666; margin-top: 4px; }
+      .print-section { margin-bottom: 14pt; page-break-inside: avoid; }
+      .print-section h2 { font-size: 13pt; border-left: 4px solid #333; padding-left: 8px; margin: 14pt 0 8pt; color: #000; }
+      .print-answer { background: #f0f0f0; padding: 10pt; border-radius: 4pt; margin-bottom: 12pt; font-size: 12pt; font-weight: 700; }
+      .print-sol { margin-bottom: 10pt; padding: 8pt; border: 1px solid #ccc; border-radius: 4pt; page-break-inside: avoid; }
+      .print-sol-label { font-weight: 700; font-size: 10pt; color: #555; margin-bottom: 4pt; }
+      .print-sol-content { font-size: 11pt; line-height: 1.7; white-space: pre-wrap; }
+      .print-chip { display: inline-block; background: #eee; padding: 2pt 6pt; border-radius: 3pt; font-size: 9pt; margin: 2pt; }
+      .print-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-top: 6pt; }
+      .print-table th, .print-table td { border: 1px solid #999; padding: 4pt 6pt; text-align: left; }
+      .print-table th { background: #eee; font-weight: 700; }
+      .print-foot { margin-top: 20pt; padding-top: 8pt; border-top: 1px dashed #999; font-size: 9pt; color: #666; text-align: center; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ============================
+     인쇄 전용 영역 (화면 숨김, 인쇄 시 노출)
+============================ -->
+<div id="printArea">
+  <div class="print-header">
+    <h1>수풀AI 풀이지</h1>
+    <div class="ph-meta" id="print-meta"></div>
+  </div>
+  <div id="print-body"></div>
+  <div class="print-foot">수풀AI · 막힌 수학을 풀다 · supul-ai.netlify.app</div>
+</div>
+
+<!-- ============================
+     인쇄 업그레이드 안내 모달
+============================ -->
+<div class="modal-overlay" id="print-upgrade-modal">
+  <div class="modal-card">
+    <button class="modal-close" id="print-upgrade-close">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-body">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </div>
+      <h3>인쇄는 회원 전용 기능이에요</h3>
+      <p>회원가입하면 AI 풀이지를 인쇄하거나 PDF로 저장할 수 있어요.<br>개인 패킷으로 무제한 이용해보세요!</p>
+      <div class="modal-btns">
+        <button class="btn-primary" id="btn-print-upgrade-signup">회원가입하기</button>
+        <button class="btn-secondary" id="btn-print-upgrade-close">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ============================
      체험 종료 모달
@@ -2105,8 +2278,17 @@
         <span id="teacher-remaining" style="font-size:11px;color:var(--color-text-light);"></span>
       </div>
       <button class="btn-header" id="btn-header-login">회원가입</button>
-      <button class="btn-header teacher-btn hidden" id="btn-teacher-open">선생님 로그인</button>
       <button class="btn-header logout-btn hidden" id="btn-logout">로그아웃</button>
+      <!-- 영풀 방식 아이콘 버튼 -->
+      <button class="btn-header-icon teacher-icon" id="btn-teacher-open" title="선생님 로그인">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+      </button>
+      <button class="btn-header-icon" id="btn-print-header" title="인쇄">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </button>
+      <button class="btn-header-icon" id="btn-refresh-header" title="새로고침">
+        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      </button>
     </div>
   </header>
 
@@ -2190,6 +2372,7 @@
         <div class="upload-zone" id="upload-zone">
           <input type="file" id="file-input" accept="image/*" style="display:none;" />
           <input type="file" id="file-camera" accept="image/*" capture="environment" style="display:none;" />
+          <input type="file" id="file-add" accept="image/*" multiple style="display:none;" />
 
           <div class="upload-ring-wrap">
             <div class="upload-ring" id="upload-ring">
@@ -2276,6 +2459,19 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
             그리기
           </button>
+          <button class="img-ctrl-btn" id="btn-add-page" style="color:var(--color-primary);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            페이지 추가
+          </button>
+        </div>
+
+        <!-- 다중 페이지 썸네일 스트립 -->
+        <div class="multi-strip hidden" id="multi-strip">
+          <div class="multi-strip-label">
+            <span>페이지 선택 — <strong id="multi-count">1</strong>/4장</span>
+            <span style="font-size:10px;color:var(--color-muted);">최대 4장 · 3장 권장</span>
+          </div>
+          <div class="multi-strip-row" id="multi-strip-row"></div>
         </div>
 
         <!-- 텍스트 입력 + 풀기 버튼 -->
@@ -2916,11 +3112,13 @@ const state = {
   student: null,
   teacher: null,
   uploadedImage: null,
+  additionalImages: [],   // 추가 페이지 (2~4번째 사진)
   solveResult: null,
   selfLevel: null,
   startTime: null,
   solveTab: 'A',
 };
+const MAX_PAGES = 4;
 
 /* ======================================================================
    XSS 보호
@@ -3228,6 +3426,237 @@ $('btn-teacher-open').addEventListener('click', () => {
 
 $('teacher-modal-close').addEventListener('click', () => $('teacher-modal').classList.remove('show'));
 $('btn-teacher-cancel').addEventListener('click', () => $('teacher-modal').classList.remove('show'));
+
+$('btn-print-header').addEventListener('click', () => {
+  if (!state.student && !state.teacher) {
+    $('print-upgrade-modal').classList.add('show');
+  } else {
+    preparePrint();
+  }
+});
+$('btn-refresh-header').addEventListener('click', () => location.reload());
+
+$('print-upgrade-close').addEventListener('click', () => $('print-upgrade-modal').classList.remove('show'));
+$('btn-print-upgrade-close').addEventListener('click', () => $('print-upgrade-modal').classList.remove('show'));
+$('btn-print-upgrade-signup').addEventListener('click', () => {
+  $('print-upgrade-modal').classList.remove('show');
+  $('signup-modal').classList.add('show');
+});
+
+/* ======================================================================
+   다중 페이지 사진 추가
+====================================================================== */
+
+// 에디터 없이 빠른 리사이즈/회전 보정
+function quickLoadImage(file) {
+  return new Promise((resolve) => {
+    readOrientation(file).then((orientation) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1500;
+        let sw = img.naturalWidth, sh = img.naturalHeight;
+        const needSwap = orientation === 6 || orientation === 8;
+        let cw = needSwap ? sh : sw, ch = needSwap ? sw : sh;
+        const ratio = Math.min(MAX / cw, MAX / ch, 1);
+        cw = Math.round(cw * ratio); ch = Math.round(ch * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.save(); ctx.translate(cw / 2, ch / 2);
+        if (orientation === 3) ctx.rotate(Math.PI);
+        else if (orientation === 6) ctx.rotate(Math.PI / 2);
+        else if (orientation === 8) ctx.rotate(-Math.PI / 2);
+        ctx.drawImage(img, -sw * ratio / 2, -sh * ratio / 2, sw * ratio, sh * ratio);
+        ctx.restore();
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = url;
+    });
+  });
+}
+
+function renderMultiStrip() {
+  const total = 1 + state.additionalImages.length;
+  $('multi-count').textContent = total;
+  let html = '';
+  // 1번 사진 (메인, 삭제 불가 — 전체 × 버튼으로 삭제)
+  html += `<div class="multi-thumb">
+    <img src="${state.uploadedImage}" alt="p1">
+    <span class="pg-num">1</span>
+  </div>`;
+  state.additionalImages.forEach((src, i) => {
+    html += `<div class="multi-thumb">
+      <img src="${src}" alt="p${i + 2}">
+      <button class="thumb-rm" data-idx="${i}">✕</button>
+      <span class="pg-num">${i + 2}</span>
+    </div>`;
+  });
+  if (total < MAX_PAGES) {
+    html += `<button class="multi-add-btn" id="btn-add-inline">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      추가
+    </button>`;
+  }
+  $('multi-strip-row').innerHTML = html;
+  // 개별 삭제
+  $('multi-strip-row').querySelectorAll('.thumb-rm').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.additionalImages.splice(parseInt(btn.dataset.idx), 1);
+      if (!state.additionalImages.length) $('multi-strip').classList.add('hidden');
+      else renderMultiStrip();
+    });
+  });
+  // 인라인 추가 버튼
+  const addInline = $('btn-add-inline');
+  if (addInline) addInline.addEventListener('click', () => $('file-add').click());
+  $('multi-strip').classList.remove('hidden');
+  // 상단 btn-add-page 텍스트 업데이트
+  $('btn-add-page').querySelector('svg').nextSibling.textContent = ` 페이지 추가 (${total}/${MAX_PAGES})`;
+}
+
+// 페이지 추가 버튼
+$('btn-add-page').addEventListener('click', () => {
+  if (!state.uploadedImage) return;
+  if (1 + state.additionalImages.length >= MAX_PAGES) {
+    alert(`최대 ${MAX_PAGES}장까지 추가할 수 있어요. (3장 권장)`);
+    return;
+  }
+  $('file-add').click();
+});
+
+$('file-add').addEventListener('change', async (e) => {
+  const remaining = MAX_PAGES - 1 - state.additionalImages.length;
+  const files = Array.from(e.target.files).slice(0, remaining);
+  for (const file of files) {
+    const dataUrl = await quickLoadImage(file);
+    state.additionalImages.push(dataUrl);
+  }
+  renderMultiStrip();
+  $('file-add').value = '';
+});
+
+function preparePrint() {
+  const today = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+  const name = state.student?.name || state.teacher?.name || '사용자';
+
+  // 현재 활성 서브탭 감지
+  const activePanel = document.querySelector('.solve-sub-panel.active');
+  const tabKey = activePanel?.id?.replace('solve-sub-', '') || 'upload';
+
+  let title = '수풀AI 풀이지';
+  let html = '';
+
+  /* ── 오답 풀이 탭 ── */
+  if (tabKey === 'upload') {
+    const result = state.solveResult;
+    if (!result) { alert('인쇄할 풀이 결과가 없어요. 먼저 문제를 풀어주세요.'); return; }
+    title = '수풀AI 풀이지';
+    const stars = '★'.repeat(result.difficulty_ai || 0) + '☆'.repeat(5 - (result.difficulty_ai || 0));
+    html += `<div class="print-section">
+      <h2>문제 정보</h2>
+      <span class="print-chip">학년: ${escHtml(result.grade || '-')}</span>
+      <span class="print-chip">단원: ${escHtml(result.subject || '-')}</span>
+      <span class="print-chip">난이도: ${stars}</span>
+      ${(result.concepts || []).map(c => `<span class="print-chip">${escHtml(c)}</span>`).join('')}
+    </div>`;
+    html += `<div class="print-section"><h2>정답</h2>
+      <div class="print-answer">${escHtml(result.answer || '-')}</div></div>`;
+    if (result.solutions?.length) {
+      html += `<div class="print-section"><h2>풀이법</h2>`;
+      result.solutions.forEach(sol => {
+        html += `<div class="print-sol">
+          <div class="print-sol-label">풀이 ${escHtml(sol.label)} — ${escHtml(sol.title || '')}</div>
+          <div class="print-sol-content">${escHtml(sol.steps || '')}</div></div>`;
+      });
+      html += `</div>`;
+    }
+    if (result.similar?.length) {
+      html += `<div class="print-section"><h2>유사 문제</h2>`;
+      result.similar.forEach(q => {
+        html += `<div class="print-sol">
+          <div class="print-sol-label">문제 ${escHtml(String(q.num))}</div>
+          <div class="print-sol-content">${escHtml(q.question || '')}</div>
+          <div style="margin-top:4pt;font-size:10pt;color:#444;">정답: ${escHtml(q.answer || '')}</div></div>`;
+      });
+      html += `</div>`;
+    }
+    if (result.next_concept) {
+      html += `<div class="print-section"><h2>다음 단원 연결</h2>
+        <div class="print-sol-content">${escHtml(result.next_concept)}</div></div>`;
+    }
+
+  /* ── 공식 모음 탭 ── */
+  } else if (tabKey === 'formula') {
+    title = '수풀AI 공식 모음표';
+    const items = document.querySelectorAll('#formula-list .card');
+    if (!items.length) { alert('인쇄할 공식이 없어요.'); return; }
+    html += `<div class="print-section"><h2>자주 쓰는 수학 공식</h2>`;
+    items.forEach(card => {
+      const name = card.querySelector('strong')?.textContent || '';
+      const formula = card.querySelector('div')?.textContent || '';
+      html += `<div class="print-sol">
+        <div class="print-sol-label">${escHtml(name)}</div>
+        <div class="print-sol-content" style="font-family:'Times New Roman',serif;">${escHtml(formula)}</div></div>`;
+    });
+    html += `</div>`;
+
+  /* ── 취약점 분석 탭 ── */
+  } else if (tabKey === 'weakness') {
+    title = '수풀AI 취약점 분석';
+    const inner = $('weakness-result')?.innerHTML || '';
+    if (!inner.trim()) { alert('분석할 데이터가 없어요. 문제를 10개 이상 풀어주세요.'); return; }
+    html += `<div class="print-section"><h2>취약점 분석 결과</h2>${inner}</div>`;
+
+  /* ── 연습문제 탭 ── */
+  } else if (tabKey === 'practice') {
+    title = '수풀AI 연습문제지';
+    const inner = $('practice-result')?.innerHTML || '';
+    if (!inner.trim()) { alert('생성된 연습문제가 없어요. 먼저 연습문제를 생성해주세요.'); return; }
+    html += `<div class="print-section"><h2>AI 연습문제</h2>${inner}</div>`;
+
+  /* ── 오답 복습 탭 ── */
+  } else if (tabKey === 'review') {
+    title = '수풀AI 오답 복습';
+    const problems = (() => { try { return JSON.parse(localStorage.getItem('yp_bank') || '[]'); } catch { return []; } })();
+    const wrong = problems.filter(p => p.selfLevel >= 4);
+    if (!wrong.length) { alert('복습할 오답이 없어요.'); return; }
+    html += `<div class="print-section"><h2>오답 복습 목록</h2>
+      <table class="print-table"><thead><tr><th>#</th><th>단원</th><th>난이도</th><th>날짜</th></tr></thead><tbody>`;
+    wrong.forEach((p, i) => {
+      html += `<tr>
+        <td>${i + 1}</td>
+        <td>${escHtml(p.subject || '-')}</td>
+        <td>${'★'.repeat(p.difficulty_ai || 0)}</td>
+        <td>${escHtml(p.date ? p.date.slice(0,10) : '-')}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+
+  /* ── 학습 기록 탭 ── */
+  } else if (tabKey === 'log') {
+    title = '수풀AI 학습 기록';
+    const problems = (() => { try { return JSON.parse(localStorage.getItem('yp_bank') || '[]'); } catch { return []; } })();
+    if (!problems.length) { alert('학습 기록이 없어요.'); return; }
+    html += `<div class="print-section"><h2>학습 기록 (최근 ${Math.min(problems.length, 30)}건)</h2>
+      <table class="print-table"><thead><tr><th>#</th><th>날짜</th><th>단원</th><th>난이도</th><th>자가평가</th></tr></thead><tbody>`;
+    problems.slice(-30).reverse().forEach((p, i) => {
+      html += `<tr>
+        <td>${i + 1}</td>
+        <td>${escHtml(p.date ? p.date.slice(0,10) : '-')}</td>
+        <td>${escHtml(p.subject || '-')}</td>
+        <td>${'★'.repeat(p.difficulty_ai || 0)}</td>
+        <td>${p.selfLevel === 1 ? '쉬움' : p.selfLevel === 3 ? '보통' : p.selfLevel === 5 ? '어려움' : '-'}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  document.querySelector('#printArea h1').textContent = title;
+  $('print-meta').textContent = `출력일: ${today} · 학생: ${name}`;
+  $('print-body').innerHTML = html;
+  setTimeout(() => window.print(), 120);
+}
 
 $('btn-teacher-login').addEventListener('click', () => {
   const name = $('teacher-name-input').value.trim();
@@ -3662,8 +4091,11 @@ document.addEventListener('paste', (e) => {
 
 $('btn-remove-img').addEventListener('click', () => {
   state.uploadedImage = null;
+  state.additionalImages = [];
   $('preview-zone').classList.add('hidden');
   $('img-controls').classList.add('hidden');
+  $('multi-strip').classList.add('hidden');
+  $('multi-strip-row').innerHTML = '';
   uploadZone.classList.remove('hidden');
   fileInput.value = '';
   fileCamera.value = '';
@@ -3784,7 +4216,7 @@ function reRenderRotated() {
     ctx.translate(cw / 2, ch / 2);
     ctx.rotate((r * Math.PI) / 180);
     ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
-    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.85);
+    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.82);
     $('preview-img').src = state.uploadedImage;
     $('preview-img').style.transform = `scale(${imgScale})`;
     imgRotation = 0;
@@ -3943,7 +4375,7 @@ function applyCrop() {
     canvas.height = Math.round(sh);
     canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
 
-    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.9);
+    state.uploadedImage = canvas.toDataURL('image/jpeg', 0.82);
     $('preview-img').src = state.uploadedImage;
     imgScale = 1; imgRotation = 0;
     applyImgTransform();
@@ -3981,6 +4413,8 @@ async function doSolve() {
     alert('문제 사진을 업로드하거나 문제를 입력해주세요!');
     return;
   }
+  // 다중 이미지 배열 (1장이면 단일, 2장+ 이면 배열로 전송)
+  const allImages = [state.uploadedImage, ...state.additionalImages].filter(Boolean);
   if (!canUseTrial()) {
     showLimitModal();
     return;
@@ -4010,40 +4444,30 @@ async function doSolve() {
   try {
     const body = { text, student: state.student };
 
-    // 이미지 압축: Netlify 함수 본문 한계(6MB) 초과 방지
-    // 전송 전 3MB 이하로 재압축
-    if (state.uploadedImage) {
-      let imgData = state.uploadedImage;
-      const MAX_BYTES = 3 * 1024 * 1024; // 3MB
-      if (imgData.length > MAX_BYTES) {
-        imgData = await (function(src) {
-          return new Promise(resolve => {
-            const img = new Image();
-            img.onload = () => {
-              let w = img.width, h = img.height;
-              // 최대 1200px로 축소
-              if (w > 1200 || h > 1200) {
-                const ratio = Math.min(1200 / w, 1200 / h);
-                w = Math.round(w * ratio);
-                h = Math.round(h * ratio);
-              }
-              const c = document.createElement('canvas');
-              c.width = w; c.height = h;
-              c.getContext('2d').drawImage(img, 0, 0, w, h);
-              // 품질을 낮춰가며 3MB 이하로
-              let q = 0.72;
-              let out = c.toDataURL('image/jpeg', q);
-              while (out.length > MAX_BYTES && q > 0.3) {
-                q -= 0.1;
-                out = c.toDataURL('image/jpeg', q);
-              }
-              resolve(out);
-            };
-            img.src = src;
-          });
-        })(imgData);
-      }
-      body.image = imgData;
+    // 이미지 압축: Netlify 함수 본문 한계(6MB) 초과 방지 + 다중 이미지 지원
+    if (allImages.length > 0) {
+      const MAX_BYTES = 3 * 1024 * 1024;
+      const compressImg = (src) => new Promise(resolve => {
+        if (!src || src.length <= MAX_BYTES) { resolve(src); return; }
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > 1200 || h > 1200) {
+            const ratio = Math.min(1200 / w, 1200 / h);
+            w = Math.round(w * ratio); h = Math.round(h * ratio);
+          }
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          let q = 0.72, out = c.toDataURL('image/jpeg', q);
+          while (out.length > MAX_BYTES && q > 0.3) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+          resolve(out);
+        };
+        img.src = src;
+      });
+      const compressed = await Promise.all(allImages.map(compressImg));
+      if (compressed.length > 1) body.images = compressed;
+      else body.image = compressed[0];
     }
 
     const res = await fetch('/api/solve', {

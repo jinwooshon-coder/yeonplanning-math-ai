@@ -16,9 +16,14 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { text, image, student } = JSON.parse(event.body);
+    const { text, image, images, student } = JSON.parse(event.body);
 
-    if (!text && !image) {
+    // images 배열 또는 단일 image 정규화 (최대 4장)
+    const imageList = images
+      ? images.slice(0, 4)
+      : image ? [image] : [];
+
+    if (!text && imageList.length === 0) {
       return {
         statusCode: 400,
         headers,
@@ -26,38 +31,42 @@ exports.handler = async (event) => {
       };
     }
 
-    // 이미지 크기 체크 (base64 데이터가 4MB 초과면 거부)
-    if (image && image.length > 4 * 1024 * 1024) {
-      return {
-        statusCode: 413,
-        headers,
-        body: JSON.stringify({ error: '이미지가 너무 큽니다. 더 작은 사진을 사용해 주세요.' }),
-      };
+    // 이미지 크기 체크 (장당 4MB, 전체 12MB 이하)
+    const SINGLE_LIMIT = 4 * 1024 * 1024;
+    const TOTAL_LIMIT  = 12 * 1024 * 1024;
+    let totalSize = 0;
+    for (const img of imageList) {
+      if (img.length > SINGLE_LIMIT) {
+        return { statusCode: 413, headers, body: JSON.stringify({ error: '이미지 한 장이 너무 큽니다. 더 작은 사진을 사용해 주세요.' }) };
+      }
+      totalSize += img.length;
+    }
+    if (totalSize > TOTAL_LIMIT) {
+      return { statusCode: 413, headers, body: JSON.stringify({ error: '전체 이미지 용량이 너무 큽니다. 사진을 줄여주세요.' }) };
     }
 
     // ── 메시지 구성 ──
     const userContent = [];
 
-    if (image) {
-      // base64 이미지에서 데이터 부분만 추출
-      const base64Match = image.match(/^data:image\/(\w+);base64,(.+)$/);
-      if (base64Match) {
+    // 이미지 블록 추가 (최대 4장)
+    for (const img of imageList) {
+      const m = img.match(/^data:image\/(\w+);base64,(.+)$/);
+      if (m) {
         userContent.push({
           type: 'image',
-          source: {
-            type: 'base64',
-            media_type: `image/${base64Match[1]}`,
-            data: base64Match[2],
-          },
+          source: { type: 'base64', media_type: `image/${m[1]}`, data: m[2] },
         });
       }
     }
 
+    const multiPageNote = imageList.length > 1
+      ? `(이미지 ${imageList.length}장이 첨부되어 있습니다. 연속된 교과서 페이지로 간주하고 문제를 파악해 주세요.)\n\n`
+      : '';
     userContent.push({
       type: 'text',
       text: text
-        ? `다음 수학 문제를 풀어주세요:\n\n${text}`
-        : '이미지의 수학 문제를 풀어주세요.',
+        ? `${multiPageNote}다음 수학 문제를 풀어주세요:\n\n${text}`
+        : `${multiPageNote}이미지의 수학 문제를 풀어주세요.`,
     });
 
     // ── Claude API 호출 ──
