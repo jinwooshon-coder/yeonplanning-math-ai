@@ -6277,7 +6277,7 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 // 시작 시 설정 적용
 (function initSettings() {
   const s = loadSettings();
-  if (!s.theme) s.theme = 'light';
+  if (!s.theme) s.theme = 'dark';
   if (!s.font) s.font = 'lg';
   applySettings(s);
 })();
@@ -6352,11 +6352,11 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
     <div class="settings-section">
       <div class="settings-label">화면 모드</div>
       <div class="theme-btns">
-        <button class="theme-btn active" data-val="light">
+        <button class="theme-btn" data-val="light">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           라이트
         </button>
-        <button class="theme-btn" data-val="dark">
+        <button class="theme-btn active" data-val="dark">
           <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           다크
         </button>
