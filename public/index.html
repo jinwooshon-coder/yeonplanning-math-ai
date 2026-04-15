@@ -68,6 +68,223 @@
       }
     }
 
+    /* ============================ 다크모드 (수동) ============================ */
+    html[data-theme="dark"] {
+      --color-bg: #1A2028;
+      --color-surface: #2C3842;
+      --color-primary: #7A9AB8;
+      --color-primary-light: #9AB8D0;
+      --color-primary-dark: #526E8A;
+      --color-muted: #4A5E68;
+      --color-text: #E0E8EA;
+      --color-text-light: #8AACB8;
+      --color-success: #8FB896;
+      --color-error: #B89090;
+      --color-warning: #B8AD8A;
+      --color-border: rgba(255,255,255,0.08);
+      --color-card-shadow: rgba(0,0,0,0.2);
+    }
+    html[data-theme="light"] {
+      --color-bg: #F0F2F5;
+      --color-surface: #FFFFFF;
+      --color-primary: #526E8A;
+      --color-primary-light: #7A9AB8;
+      --color-primary-dark: #3D5468;
+      --color-muted: #A8B2B8;
+      --color-text: #2C3842;
+      --color-text-light: #6B8290;
+      --color-border: rgba(0,0,0,0.08);
+      --color-card-shadow: rgba(0,0,0,0.04);
+    }
+
+    /* ============================ 글씨 크기 ============================ */
+    html[data-font="sm"] { font-size: 13px; }
+    html[data-font="md"] { font-size: 15px; }
+    html[data-font="lg"] { font-size: 17px; }
+
+    /* ============================ 설정 패널 ============================ */
+    #settings-drawer {
+      position: fixed;
+      top: 0; right: -340px;
+      width: 320px;
+      height: 100%;
+      background: var(--color-surface);
+      box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+      z-index: 9998;
+      transition: right .28s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--color-border);
+    }
+    #settings-drawer.open { right: 0; }
+    #settings-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 9997;
+      backdrop-filter: blur(2px);
+    }
+    #settings-overlay.open { display: block; }
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+    .settings-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-header h3 svg { stroke: var(--color-primary); }
+    .settings-close {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      cursor: pointer;
+      border-radius: 8px;
+      color: var(--color-text-light);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .settings-close:hover { background: var(--color-bg); color: var(--color-text); }
+    .settings-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .settings-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .settings-section:last-child { border-bottom: none; }
+    .settings-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    /* 글씨 크기 버튼 */
+    .font-size-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .font-size-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      background: var(--color-bg);
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: var(--font);
+      font-weight: 500;
+      transition: all .15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .font-size-btn .fs-preview { font-weight: 700; line-height: 1; }
+    .font-size-btn .fs-label { font-size: 10px; color: var(--color-text-light); }
+    .font-size-btn.active {
+      border-color: var(--color-primary);
+      background: rgba(82,110,138,0.08);
+      color: var(--color-primary);
+    }
+    .font-size-btn.active .fs-label { color: var(--color-primary); }
+    /* 테마 버튼 */
+    .theme-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .theme-btn {
+      flex: 1;
+      padding: 12px 8px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      background: var(--color-bg);
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      transition: all .15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .theme-btn svg { width: 20px; height: 20px; stroke: var(--color-text-light); fill: none; stroke-width: 1.5; stroke-linecap: round; }
+    .theme-btn.active {
+      border-color: var(--color-primary);
+      background: rgba(82,110,138,0.08);
+      color: var(--color-primary);
+    }
+    .theme-btn.active svg { stroke: var(--color-primary); }
+    /* 토글 스위치 */
+    .settings-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .settings-toggle-row + .settings-toggle-row { border-top: 1px solid var(--color-border); }
+    .toggle-info { display: flex; flex-direction: column; gap: 2px; }
+    .toggle-title { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    .toggle-desc { font-size: 11px; color: var(--color-text-light); }
+    .toggle-switch {
+      width: 44px; height: 24px;
+      background: var(--color-border);
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+    .toggle-switch.on { background: var(--color-primary); }
+    .toggle-switch.on::after { transform: translateX(20px); }
+    /* 언어 버튼 */
+    .lang-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .lang-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 10px;
+      background: var(--color-bg);
+      color: var(--color-text);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all .15s;
+    }
+    .lang-btn.active {
+      border-color: var(--color-primary);
+      background: rgba(82,110,138,0.08);
+      color: var(--color-primary);
+    }
+
     /* ============================ 리셋 ============================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; }
@@ -2294,6 +2511,12 @@
       </button>
       <button class="btn-header-icon" id="btn-refresh-header" title="새로고침">
         <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      </button>
+      <button class="btn-header-icon" id="btn-qr-header" title="QR 코드 공유" onclick="openQR()">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3"/><rect x="16" y="5" width="3" height="3"/><rect x="5" y="16" width="3" height="3"/><path d="M14 14h2v2h-2z"/><path d="M18 14h3v2h-3z"/><path d="M14 18h3v3h-3z"/><path d="M19 19h2v2h-2z"/></svg>
+      </button>
+      <button class="btn-header-icon" id="btn-settings" title="설정" onclick="openSettings()">
+        <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
       </button>
     </div>
   </header>
@@ -5776,6 +5999,172 @@ function completeSupulWhiteboard(){
     alert('이미지 가져오기 실패: ' + e.message);
   }
 }
+
+/* ======================================================
+   QR 모달
+====================================================== */
+function openQR() {
+  const el = document.getElementById('qr-modal-overlay');
+  el.style.display = 'flex';
+}
+function closeQR() {
+  const el = document.getElementById('qr-modal-overlay');
+  el.style.display = 'none';
+}
+document.getElementById('qr-modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeQR();
+});
+
+/* ======================================================
+   설정 패널
+====================================================== */
+const SETTINGS_KEY = 'supul_settings';
+
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; } catch { return {}; }
+}
+function saveSettings(obj) {
+  const cur = loadSettings();
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...cur, ...obj }));
+}
+
+function applySettings(s) {
+  // 테마
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  // 글씨 크기
+  if (s.font) document.documentElement.setAttribute('data-font', s.font);
+  // 설정 패널 UI 상태 반영
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.val === s.theme));
+  document.querySelectorAll('.font-size-btn').forEach(b => b.classList.toggle('active', b.dataset.val === s.font));
+  const notifToggle = document.getElementById('toggle-notif');
+  if (notifToggle) notifToggle.classList.toggle('on', s.notif !== false);
+  const langBtns = document.querySelectorAll('.lang-btn');
+  langBtns.forEach(b => b.classList.toggle('active', b.dataset.val === (s.lang || 'ko')));
+}
+
+function openSettings() {
+  document.getElementById('settings-drawer').classList.add('open');
+  document.getElementById('settings-overlay').classList.add('open');
+  applySettings(loadSettings());
+}
+function closeSettings() {
+  document.getElementById('settings-drawer').classList.remove('open');
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+document.getElementById('settings-overlay').addEventListener('click', closeSettings);
+
+// 글씨 크기
+document.querySelectorAll('.font-size-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const val = btn.dataset.val;
+    saveSettings({ font: val });
+    applySettings({ ...loadSettings(), font: val });
+  });
+});
+
+// 테마
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const val = btn.dataset.val;
+    saveSettings({ theme: val });
+    applySettings({ ...loadSettings(), theme: val });
+  });
+});
+
+// 알림 토글
+document.getElementById('toggle-notif').addEventListener('click', function() {
+  const next = !this.classList.contains('on');
+  this.classList.toggle('on', next);
+  saveSettings({ notif: next });
+});
+
+// 언어
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const val = btn.dataset.val;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+    saveSettings({ lang: val });
+  });
+});
+
+// 시작 시 설정 적용
+(function initSettings() {
+  const s = loadSettings();
+  if (!s.theme) s.theme = 'light';
+  if (!s.font) s.font = 'md';
+  applySettings(s);
+})();
 </script>
+
+<!-- ========== QR 모달 ========== -->
+<div id="qr-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(4px);" class="">
+  <div style="background:var(--color-surface);border-radius:20px;padding:28px 24px;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.18);">
+    <div style="font-size:15px;font-weight:700;color:var(--color-text);margin-bottom:4px;">수풀AI 공유</div>
+    <div style="font-size:12px;color:var(--color-text-light);margin-bottom:18px;">QR 코드를 스캔하세요</div>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://supul-ai.netlify.app&margin=10&bgcolor=FFFFFF&color=2C3842" alt="QR" style="width:180px;height:180px;border-radius:12px;border:1.5px solid var(--color-border);"/>
+    <div style="font-size:13px;color:var(--color-primary);font-weight:600;margin-top:14px;letter-spacing:.02em;">supul-ai.netlify.app</div>
+    <button onclick="closeQR()" style="margin-top:18px;width:100%;padding:11px;border:none;background:var(--color-primary);color:#fff;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);">닫기</button>
+  </div>
+</div>
+
+<!-- ========== 설정 오버레이 ========== -->
+<div id="settings-overlay"></div>
+
+<!-- ========== 설정 드로어 ========== -->
+<div id="settings-drawer">
+  <div class="settings-header">
+    <h3>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+      설정
+    </h3>
+    <button class="settings-close" onclick="closeSettings()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="settings-body">
+    <!-- 글씨 크기 -->
+    <div class="settings-section">
+      <div class="settings-label">글씨 크기</div>
+      <div class="font-size-btns">
+        <button class="font-size-btn" data-val="sm"><span class="fs-preview" style="font-size:15px;">가</span><span class="fs-label">작게</span></button>
+        <button class="font-size-btn active" data-val="md"><span class="fs-preview" style="font-size:19px;">가</span><span class="fs-label">보통</span></button>
+        <button class="font-size-btn" data-val="lg"><span class="fs-preview" style="font-size:23px;">가</span><span class="fs-label">크게</span></button>
+      </div>
+    </div>
+    <!-- 테마 -->
+    <div class="settings-section">
+      <div class="settings-label">화면 모드</div>
+      <div class="theme-btns">
+        <button class="theme-btn active" data-val="light">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          라이트
+        </button>
+        <button class="theme-btn" data-val="dark">
+          <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          다크
+        </button>
+      </div>
+    </div>
+    <!-- 알림 -->
+    <div class="settings-section">
+      <div class="settings-label">알림 설정</div>
+      <div class="settings-toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-title">학습 알림</span>
+          <span class="toggle-desc">풀이 완료 및 업데이트 알림</span>
+        </div>
+        <button class="toggle-switch on" id="toggle-notif"></button>
+      </div>
+    </div>
+    <!-- 언어 -->
+    <div class="settings-section">
+      <div class="settings-label">언어</div>
+      <div class="lang-btns">
+        <button class="lang-btn active" data-val="ko">🇰🇷 한국어</button>
+        <button class="lang-btn" data-val="en">🇺🇸 English</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
