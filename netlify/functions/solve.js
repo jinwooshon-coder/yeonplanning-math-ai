@@ -74,42 +74,35 @@ exports.handler = async (event) => {
 반드시 아래 JSON 형식으로만 응답하세요 (마크다운 코드블록 없이 순수 JSON).
 모든 수식은 반드시 LaTeX 형식으로 작성하세요 (KaTeX 렌더링용).
 인라인 수식은 $수식$ 형태, 별도 줄 수식은 $$수식$$ 형태로 작성하세요.
+응답은 간결하게 핵심만 담아 주세요.
 
 {
   "problem": "문제 전체 내용 (LaTeX 포함)",
   "answer": "최종 정답 (LaTeX 포함, 예: $x = 3$)",
-  "concepts": ["핵심 개념1", "핵심 개념2", "핵심 개념3"],
+  "concepts": ["핵심 개념1", "핵심 개념2"],
   "difficulty_ai": 숫자(1~5),
   "grade": "학년 (예: 중1, 고2)",
   "subject": "단원명 (예: 일차방정식)",
   "solutions": [
     {
       "label": "A",
-      "title": "풀이법 이름 (예: 이항법 활용)",
-      "steps": "단계별 풀이\\n1단계: ...\\n2단계: ...\\n(각 단계에 LaTeX 수식 포함)"
+      "title": "풀이법 이름",
+      "steps": "단계별 풀이 (LaTeX 수식 포함, 핵심 단계만)"
     },
     {
       "label": "B",
-      "title": "풀이법 이름 (다른 방법)",
-      "steps": "단계별 풀이"
-    },
-    {
-      "label": "C",
-      "title": "풀이법 이름 (또 다른 방법 또는 검산)",
+      "title": "다른 풀이법",
       "steps": "단계별 풀이"
     }
   ],
   "similar": [
-    { "num": 1, "question": "유사 문제 (LaTeX)", "answer": "정답 (LaTeX)" },
-    { "num": 2, "question": "유사 문제 (LaTeX)", "answer": "정답 (LaTeX)" }
+    { "num": 1, "question": "유사 문제 (LaTeX)", "answer": "정답 (LaTeX)" }
   ],
   "reallife": [
-    { "icon": "🛒", "title": "사례 제목", "desc": "실생활 설명 (2~3문장)", "equation": "$관련 수식$" },
-    { "icon": "🚕", "title": "사례 제목", "desc": "실생활 설명", "equation": "$관련 수식$" },
-    { "icon": "💊", "title": "사례 제목", "desc": "실생활 설명", "equation": "$관련 수식$" },
-    { "icon": "📱", "title": "사례 제목", "desc": "실생활 설명", "equation": "$관련 수식$" }
+    { "icon": "🛒", "title": "사례 제목", "desc": "실생활 설명 (1~2문장)", "equation": "$관련 수식$" },
+    { "icon": "🚕", "title": "사례 제목", "desc": "실생활 설명", "equation": "$관련 수식$" }
   ],
-  "next_concept": "이 개념을 배운 후 다음에 배울 단원과 연결 설명"
+  "next_concept": "다음에 배울 단원 한 줄 설명"
 }`;
 
     const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -120,8 +113,8 @@ exports.handler = async (event) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2048,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userContent }],
       }),
