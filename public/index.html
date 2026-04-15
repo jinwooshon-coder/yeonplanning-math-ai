@@ -619,7 +619,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .tab-container {
-      max-width: 520px;
+      max-width: 600px;
       margin: 0 auto;
       padding: 0 16px;
     }
@@ -2115,11 +2115,17 @@
 
     /* ============================ 반응형 ============================ */
     @media (min-width: 768px) {
-      .tab-container { max-width: 600px; }
+      .tab-container { max-width: 760px; }
       .reallife-grid { grid-template-columns: 1fr 1fr 1fr; }
     }
     @media (min-width: 1024px) {
-      .tab-container { max-width: 680px; }
+      .tab-container { max-width: 920px; }
+    }
+    @media (min-width: 1280px) {
+      .tab-container { max-width: 1080px; }
+    }
+    @media (min-width: 1600px) {
+      .tab-container { max-width: 1280px; }
     }
 
     /* ============================ 연플래너 ============================ */
