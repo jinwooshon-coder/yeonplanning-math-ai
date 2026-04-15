@@ -4214,6 +4214,8 @@ function toggleExamWhiteboard(){
     if(!window._wbResizeAdded){
       window._wbResizeAdded = true;
       window.addEventListener('resize', function(){
+        // ?wb=1 안정 모드: 가상 키보드 등 소폭 리사이즈 무시
+        if(window._wbStableMode) return;
         var w = document.getElementById('examWhiteboard');
         if(w && w.style.display !== 'none'){
           setTimeout(_wbInitSubPanel, 150);
@@ -15190,6 +15192,45 @@ window.addEventListener('load', function(){
   }
  }
 });
+
+/* ── ?wb=1 로 열리면 그림판 자동 전체화면 진입 ── */
+(function(){
+  if(new URLSearchParams(location.search).get('wb') !== '1') return;
+  // 상단 앱바 / 탭 숨기고 그림판만 노출
+  function hideAppShell(){
+    ['#app-header','#bottom-nav','.tab-bar','.app-bar','.bottom-nav','nav',
+     '.tab-nav-wrap','#mainTabBar','#tabBar'].forEach(function(sel){
+      var el = document.querySelector(sel);
+      if(el) el.style.display = 'none';
+    });
+  }
+  function autoOpenWb(){
+    hideAppShell();
+    // 그림판 패널 열기
+    var wb = document.getElementById('examWhiteboard');
+    if(!wb) return;
+    if(wb.style.display === 'none' || wb.style.display === ''){
+      toggleExamWhiteboard();
+    }
+    // wb-fullscreen 클래스 추가 (브라우저 fullscreen API 없이 CSS만으로)
+    wb.classList.add('wb-fullscreen');
+    _wbFullscreen = true;
+    var btn = document.getElementById('wbFullscreenBtn');
+    if(btn){ btn.style.background='var(--color-primary)'; btn.style.color='#fff'; btn.style.borderColor='var(--color-primary)'; }
+    // 레이어패널 표시
+    var lp = document.getElementById('wbLayerPanel');
+    if(lp) lp.style.display = 'flex';
+    setTimeout(function(){ if(typeof _wbInitSubPanel==='function') _wbInitSubPanel(); }, 100);
+    // resize 시 안정성: 가상 키보드 등으로 인한 재초기화 방지
+    window._wbStableMode = true;
+  }
+  // DOM 준비 후 실행
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(autoOpenWb, 400); });
+  } else {
+    setTimeout(autoOpenWb, 400);
+  }
+})();
 </script>
 </body>
 </html>

@@ -6084,23 +6084,57 @@ function plannerOnActivate() {
 </script>
 
 <!-- ===== 수풀그림판 전체화면 오버레이 ===== -->
-<div id="supulWhiteboardOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#000;">
-  <iframe id="supulWhiteboardFrame" src="" style="width:100%;height:100%;border:none;" allow="camera"></iframe>
-  <!-- 취소 X (좌상단) -->
-  <button onclick="closeSupulWhiteboard()" style="position:fixed;top:12px;left:12px;z-index:100001;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.18);color:#fff;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="닫기">✕</button>
-  <!-- 완성 팝업 (우하단 플로팅) -->
-  <button id="supulCompleteBtn" onclick="completeSupulWhiteboard()" style="position:fixed;bottom:24px;right:20px;z-index:100001;padding:12px 22px;border-radius:24px;background:#1D9E75;border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,0.35);letter-spacing:0.02em;">✓ 완성</button>
+<div id="supulWhiteboardOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:#1A2028;">
+  <iframe id="supulWhiteboardFrame" src="" style="width:100%;height:100%;border:none;" allow="camera" allowfullscreen></iframe>
+  <!-- 닫기 (좌상단) -->
+  <button onclick="closeSupulWhiteboard()" style="position:fixed;top:14px;left:14px;z-index:100001;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.55);border:1.5px solid rgba(255,255,255,0.22);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.4);" title="닫기">✕</button>
+  <!-- AI 풀기 (하단 중앙 크게) -->
+  <button id="supulSolveBtn" onclick="solveFromWhiteboard()" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:100001;padding:16px 40px;border-radius:32px;background:linear-gradient(135deg,#526E8A,#3D5468);border:none;color:#fff;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 24px rgba(0,0,0,0.45);letter-spacing:0.04em;white-space:nowrap;">🤖 AI로 풀어줘</button>
+  <!-- 저장만 (우하단 작게) -->
+  <button id="supulCompleteBtn" onclick="completeSupulWhiteboard()" style="position:fixed;bottom:32px;right:20px;z-index:100001;padding:10px 18px;border-radius:20px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">저장만</button>
 </div>
 <script>
 function openSupulWhiteboard(){
   var overlay = document.getElementById('supulWhiteboardOverlay');
   var frame = document.getElementById('supulWhiteboardFrame');
+  // 매번 새로 로드 (wb=1 파라미터로 전체화면 자동 진입)
   if(!frame.getAttribute('data-loaded')){
-    frame.src = '/gangdongwon.html';
+    frame.src = '/gangdongwon.html?wb=1';
     frame.setAttribute('data-loaded','1');
   }
   overlay.style.display = 'block';
   document.body.style.overflow = 'hidden';
+}
+function solveFromWhiteboard(){
+  // 그림판 이미지 가져와서 바로 AI 풀이 실행
+  try {
+    var frame = document.getElementById('supulWhiteboardFrame');
+    var iDoc = frame.contentDocument || frame.contentWindow.document;
+    var bgCanvas = iDoc.getElementById('wbBgCanvas');
+    var wbCanvas = iDoc.getElementById('wbCanvas');
+    if(!wbCanvas){ alert('캔버스를 찾을 수 없어요. 다시 시도해 주세요.'); return; }
+    var merged = document.createElement('canvas');
+    merged.width = wbCanvas.width; merged.height = wbCanvas.height;
+    var ctx = merged.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,merged.width,merged.height);
+    if(bgCanvas) ctx.drawImage(bgCanvas,0,0);
+    ctx.drawImage(wbCanvas,0,0);
+    var dataUrl = merged.toDataURL('image/png');
+    // 미리보기 영역에 이미지 세팅
+    var previewImg = document.getElementById('preview-img');
+    var previewZone = document.getElementById('preview-zone');
+    var uploadZone = document.querySelector('.upload-zone');
+    if(previewImg) previewImg.src = dataUrl;
+    if(previewZone) previewZone.classList.remove('hidden');
+    if(uploadZone) uploadZone.classList.add('hidden');
+    if(typeof state !== 'undefined') state.uploadedImage = dataUrl;
+    closeSupulWhiteboard();
+    // 풀기 버튼 자동 클릭
+    setTimeout(function(){ var btn = document.getElementById('btn-solve'); if(btn) btn.click(); }, 150);
+  } catch(e){
+    alert('이미지 가져오기 실패: ' + e.message);
+  }
 }
 function closeSupulWhiteboard(){
   document.getElementById('supulWhiteboardOverlay').style.display = 'none';
