@@ -4810,7 +4810,7 @@ async function doSolve() {
   }, 2000);
 
   try {
-    const body = { text, student: state.student };
+    const body = { text, student: state.student, ref: localStorage.getItem('supul_ref') || undefined };
 
     // 이미지 압축: Netlify 함수 본문 한계(6MB) 초과 방지 + 다중 이미지 지원
     if (allImages.length > 0) {
@@ -6284,6 +6284,17 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
   if (!s.theme) s.theme = 'light';
   if (!s.font) s.font = 'lg';
   applySettings(s);
+})();
+
+// ?ref=코드 자동 저장 (선생님 QR 추적용)
+(function captureRef() {
+  const ref = new URLSearchParams(location.search).get('ref');
+  if (ref) {
+    localStorage.setItem('supul_ref', ref);
+    // URL에서 ref 파라미터 제거 (깔끔하게)
+    const clean = location.pathname + location.search.replace(/[?&]ref=[^&]*/g, '').replace(/^&/, '?') || location.pathname;
+    history.replaceState(null, '', clean);
+  }
 })();
 </script>
 

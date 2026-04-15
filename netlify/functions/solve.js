@@ -16,7 +16,8 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { text, image, images, student } = JSON.parse(event.body);
+    const { text, image, images, student, ref } = JSON.parse(event.body);
+    if (ref) console.log(`[REF] ${ref} | student: ${student?.name || '비로그인'} | ${new Date().toISOString()}`);
 
     // images 배열 또는 단일 image 정규화 (최대 4장)
     const imageList = images
