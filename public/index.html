@@ -136,7 +136,6 @@
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.35);
       z-index: 9997;
-      backdrop-filter: blur(2px);
     }
     #settings-overlay.open { display: block; }
     .settings-header {
@@ -6216,17 +6215,12 @@ function saveSettings(obj) {
 }
 
 function applySettings(s) {
-  // 테마
   if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
-  // 글씨 크기
   if (s.font) document.documentElement.setAttribute('data-font', s.font);
-  // 설정 패널 UI 상태 반영
   document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.val === s.theme));
   document.querySelectorAll('.font-size-btn').forEach(b => b.classList.toggle('active', b.dataset.val === s.font));
   const notifToggle = document.getElementById('toggle-notif');
   if (notifToggle) notifToggle.classList.toggle('on', s.notif !== false);
-  const langBtns = document.querySelectorAll('.lang-btn');
-  langBtns.forEach(b => b.classList.toggle('active', b.dataset.val === (s.lang || 'ko')));
 }
 
 function openSettings() {
@@ -6265,14 +6259,6 @@ document.getElementById('toggle-notif').addEventListener('click', function() {
   saveSettings({ notif: next });
 });
 
-// 언어
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const val = btn.dataset.val;
-    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
-    saveSettings({ lang: val });
-  });
-});
 
 // 시작 시 설정 적용
 (function initSettings() {
